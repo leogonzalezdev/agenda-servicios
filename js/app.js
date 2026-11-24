@@ -6,7 +6,7 @@
  */
 
 (function () {
-  const STORAGE_KEY = 'agenda_servicios_mockup_v3';
+  const STORAGE_KEY = 'agenda_servicios_mockup_v4';
   const ic = (name, size = 16, cls = '') => window.icon(name, size, cls);
 
   function deepClone(obj) {
@@ -493,7 +493,7 @@
               </div>
               <div class="portfolio-meta">
                 <div class="portfolio-title">${escapeHtml(w.title)}</div>
-                <div class="portfolio-sub">${escapeHtml(w.priceHint || 'Ver estilo')}</div>
+                <div class="portfolio-sub">${escapeHtml(w.extraSummary || w.serviceName)}</div>
               </div>
             </button>
           `).join('')}
@@ -628,7 +628,7 @@
             </div>
             <div class="portfolio-meta">
               <div class="portfolio-title">${escapeHtml(w.title)}</div>
-              <div class="portfolio-sub">${escapeHtml(w.extraSummary || w.priceHint)}</div>
+              <div class="portfolio-sub">${escapeHtml(w.extraSummary || w.serviceName)}</div>
             </div>
           </button>
         `).join('')}
@@ -656,9 +656,7 @@
               <h4 style="margin:0;font-size:16px;font-weight:800;">${escapeHtml(work.title)}</h4>
               <span class="pill pill-primary">${escapeHtml(work.serviceName)}</span>
             </div>
-            <p style="margin:0 0 10px;font-size:12.5px;color:var(--brand-muted);">
-              ${escapeHtml(work.extraSummary || '')} · <strong>${escapeHtml(work.priceHint || (svc ? formatARS(svc.price) : ''))}</strong>
-            </p>
+            ${work.extraSummary ? `<p style="margin:0 0 10px;font-size:12.5px;color:var(--brand-muted);">${escapeHtml(work.extraSummary)}</p>` : ''}
             <div class="card" style="padding:10px 12px;margin-bottom:0;">
               <div style="font-size:11.5px;color:var(--brand-muted);">
                 Al seleccionar <strong>"Quiero este estilo"</strong>, preseleccionamos <strong>${escapeHtml(svc ? svc.name : work.serviceName)}</strong> y adjuntamos esta imagen como referencia para ${escapeHtml(tenant.ownerName)}.
@@ -1641,7 +1639,7 @@
               ${mainServices.map(s => `<option value="${s.id}">${escapeHtml(s.name)} (${formatARS(s.price)})</option>`).join('')}
             </select>
           </div>
-          <div class="field"><label>Detalle de extras / precio aprox.</label><input name="extraSummary" placeholder="Ej: French + 6 strass · $25.600 aprox."></div>
+          <div class="field"><label>Detalle del estilo (opcional)</label><input name="extraSummary" placeholder="Ej: Set French + strass"></div>
           <div class="field">
             <label>Foto del trabajo</label>
             <input type="file" accept="image/*" id="new-work-file">
@@ -1991,8 +1989,7 @@
           title,
           serviceId: svc.id,
           serviceName: svc.name,
-          extraSummary: (fd.get('extraSummary') || '').toString().trim() || `${formatARS(svc.price)}`,
-          priceHint: formatARS(svc.price),
+          extraSummary: (fd.get('extraSummary') || '').toString().trim() || svc.name,
           src: imgDataUrl || '',
           gradient: `linear-gradient(135deg, ${tenant.theme.primarySoft}, ${tenant.theme.primary})`,
           featured: true
