@@ -1,10 +1,13 @@
 /**
  * Agenda de Servicios — Motor Interactivo Multitenant (App Cliente + Panel Emprendimiento)
- * Sincronización en tiempo real entre ambas vistas.
+ * - Iconografía 100% SVG (sin emojis)
+ * - Panel Emprendimiento neutral SaaS de alta claridad operativa
+ * - Link del Cliente personalizable mediante Plantillas de Estilo
  */
 
 (function () {
-  const STORAGE_KEY = 'agenda_servicios_mockup_v2';
+  const STORAGE_KEY = 'agenda_servicios_mockup_v3';
+  const ic = (name, size = 16, cls = '') => window.icon(name, size, cls);
 
   function deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -49,7 +52,7 @@
     return lum > 0.62;
   }
 
-  function getThemeVars(tenant) {
+  function getClientThemeVars(tenant) {
     const t = tenant.theme;
     const font = window.FONT_PRESETS[t.fontId] || window.FONT_PRESETS.glam;
     const rad = window.RADIUS_PRESETS[t.radiusId] || window.RADIUS_PRESETS.cute;
@@ -113,15 +116,15 @@
   const todayISO = window.getRelativeDateISO(0);
 
   const state = {
-    viewMode: window.innerWidth >= 920 ? 'split' : 'client', // 'client' | 'admin' | 'split'
+    viewMode: window.innerWidth >= 920 ? 'split' : 'client',
     activeTenantId: 'brillo-de-luna',
     tenants: loadTenants(),
     client: {
-      tab: 'home', // 'home' | 'portfolio' | 'bookings' | 'info'
+      tab: 'home',
       activeCategory: 'servicios',
       portfolioFilter: 'all',
       cart: {
-        mainServiceId: 's4', // Soft Gel pre-selected for instant clarity? Let's start clean with null so user interacts!
+        mainServiceId: null,
         retiroId: null,
         extras: {},
         selectedWork: null
@@ -145,15 +148,12 @@
       }
     },
     admin: {
-      tab: 'agenda', // 'agenda' | 'services' | 'rules' | 'brand' | 'caja'
+      tab: 'agenda',
       selectedDate: todayISO,
       serviceCatFilter: 'all',
-      modal: null // { type, id, data }
+      modal: null
     }
   };
-
-  // Start with empty cart so user taps services naturally
-  state.client.cart.mainServiceId = null;
 
   function getTenant() {
     return state.tenants[state.activeTenantId];
@@ -282,7 +282,6 @@
      RENDER: STUDIO SHELL
      ========================================================================= */
   function render() {
-    // Preserve scroll positions
     const scrollPositions = {};
     document.querySelectorAll('[data-scroll-id]').forEach(el => {
       scrollPositions[el.dataset.scrollId] = el.scrollTop;
@@ -302,22 +301,31 @@
       <header class="studio-bar">
         <div class="studio-brand">
           <span class="studio-badge">Multitenant SaaS</span>
-          <span class="studio-title">Agenda de Servicios · Mockup Interactivo</span>
+          <span class="studio-title">Agenda de Servicios · Prototipo</span>
         </div>
 
         <div class="studio-controls">
           <div class="studio-select-wrap" title="Cambiar de emprendimiento para probar el modo multitenant">
-            <span>🏪 Marca:</span>
+            ${ic('store', 14)}
+            <span>Marca:</span>
             <select id="tenant-switcher">${tenantOptions}</select>
           </div>
 
           <div class="segmented" role="tablist">
-            <button data-action="set-view" data-view="client" class="${state.viewMode === 'client' ? 'active' : ''}">📱 Cliente</button>
-            <button data-action="set-view" data-view="admin" class="${state.viewMode === 'admin' ? 'active' : ''}">🏪 Emprendimiento</button>
-            <button data-action="set-view" data-view="split" class="hide-on-mobile hide-split-narrow ${state.viewMode === 'split' ? 'active' : ''}">📱+🏪 Lado a Lado</button>
+            <button data-action="set-view" data-view="client" class="${state.viewMode === 'client' ? 'active' : ''}">
+              ${ic('smartphone', 14)}<span>Cliente</span>
+            </button>
+            <button data-action="set-view" data-view="admin" class="${state.viewMode === 'admin' ? 'active' : ''}">
+              ${ic('store', 14)}<span>Panel Admin</span>
+            </button>
+            <button data-action="set-view" data-view="split" class="hide-on-mobile hide-split-narrow ${state.viewMode === 'split' ? 'active' : ''}">
+              ${ic('columns', 14)}<span>Lado a Lado</span>
+            </button>
           </div>
 
-          <button class="studio-reset-btn" data-action="reset-demo" title="Restaurar datos originales">↺ Reset</button>
+          <button class="studio-reset-btn ic-row" data-action="reset-demo" title="Restaurar datos originales">
+            ${ic('rotateCcw', 13)}<span>Reset</span>
+          </button>
         </div>
       </header>
 
@@ -326,7 +334,7 @@
           <section class="phone-column">
             <div class="phone-column-label">
               <span class="live-dot"></span>
-              <span>App del Cliente · <strong>${escapeHtml(tenant.slug)}.turnos.app</strong></span>
+              <span>Link del Cliente · <strong>${escapeHtml(tenant.slug)}.turnos.app</strong></span>
             </div>
             ${renderClientPhone(tenant)}
           </section>
@@ -335,7 +343,7 @@
         ${showAdmin ? `
           <section class="phone-column">
             <div class="phone-column-label">
-              <span class="live-dot" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b;"></span>
+              <span class="live-dot" style="background:#6366f1;box-shadow:0 0 8px #6366f1;"></span>
               <span>Panel del Emprendimiento · <strong>${escapeHtml(tenant.ownerName)} (Admin)</strong></span>
             </div>
             ${renderAdminPhone(tenant)}
@@ -344,7 +352,6 @@
       </main>
     `;
 
-    // Restore scroll positions
     document.querySelectorAll('[data-scroll-id]').forEach(el => {
       if (scrollPositions[el.dataset.scrollId] !== undefined) {
         el.scrollTop = scrollPositions[el.dataset.scrollId];
@@ -353,10 +360,10 @@
   }
 
   /* =========================================================================
-     RENDER: CLIENT PHONE
+     RENDER: CLIENT PHONE (Customizable per Tenant Template)
      ========================================================================= */
   function renderClientPhone(tenant) {
-    const themeVars = getThemeVars(tenant);
+    const themeVars = getClientThemeVars(tenant);
     const darkClass = tenant.theme.isDark ? 'is-dark' : '';
     const cart = getCartSummary(tenant);
     const myBookingsCount = tenant.appointments.filter(a => a.isMine && a.status !== 'cancelled').length;
@@ -379,7 +386,7 @@
           </div>
 
           <div class="phone-url-pill">
-            <span>🔒 <strong>${escapeHtml(tenant.slug)}.turnos.app</strong></span>
+            <span class="ic-row">${ic('lock', 11)}<strong>${escapeHtml(tenant.slug)}.turnos.app</strong></span>
             <span>${escapeHtml(tenant.instagram)}</span>
           </div>
 
@@ -390,29 +397,29 @@
           ${showFloatingCart ? `
             <div class="floating-cart">
               <div class="cart-summary">
-                <span class="cart-top">${cart.items.length} ${cart.items.length === 1 ? 'ítem' : 'ítems'} · ⏱ ${formatDuration(cart.duration)}${cart.deposit ? ` · Seña ${formatARS(cart.deposit)}` : ''}</span>
+                <span class="cart-top ic-row">${cart.items.length} ${cart.items.length === 1 ? 'ítem' : 'ítems'} · ${ic('clock', 11)} ${formatDuration(cart.duration)}${cart.deposit ? ` · Seña ${formatARS(cart.deposit)}` : ''}</span>
                 <span class="cart-total">${cart.hasDesde ? 'Desde ' : ''}${formatARS(cart.total)}</span>
               </div>
-              <button class="cart-cta" data-action="open-wizard">Elegir turno →</button>
+              <button class="cart-cta ic-row" data-action="open-wizard"><span>Elegir turno</span>${ic('chevronRight', 14)}</button>
             </div>
           ` : ''}
 
           <nav class="bottom-nav">
             <button class="nav-item ${state.client.tab === 'home' ? 'active' : ''}" data-action="client-tab" data-tab="home">
-              <span class="nav-icon">✨</span>
+              <span class="nav-icon">${ic('sparkles', 20)}</span>
               <span>Servicios</span>
             </button>
             <button class="nav-item ${state.client.tab === 'portfolio' ? 'active' : ''}" data-action="client-tab" data-tab="portfolio">
-              <span class="nav-icon">📸</span>
+              <span class="nav-icon">${ic('camera', 20)}</span>
               <span>Trabajos</span>
             </button>
             <button class="nav-item ${state.client.tab === 'bookings' ? 'active' : ''}" data-action="client-tab" data-tab="bookings">
-              <span class="nav-icon">📅</span>
+              <span class="nav-icon">${ic('calendar', 20)}</span>
               <span>Mis Turnos</span>
               ${myBookingsCount > 0 ? `<span class="nav-badge">${myBookingsCount}</span>` : ''}
             </button>
             <button class="nav-item ${state.client.tab === 'info' ? 'active' : ''}" data-action="client-tab" data-tab="info">
-              <span class="nav-icon">📋</span>
+              <span class="nav-icon">${ic('fileText', 20)}</span>
               <span>Políticas</span>
             </button>
           </nav>
@@ -426,15 +433,11 @@
 
   function renderClientHome(tenant, cart) {
     const t = tenant.theme;
-    const stickers = tenant.assets.stickers || [];
-    const showStickers = t.showStickers && stickers.length >= 2;
     const portfolio = (tenant.portfolio || []).filter(w => w.featured !== false);
 
-    // Ensure valid activeCategory
     const activeCat = tenant.categories.find(c => c.id === state.client.activeCategory) || tenant.categories[0];
     const catServices = tenant.services.filter(s => s.categoryId === activeCat.id && s.active);
 
-    // Logo block
     let logoHtml = '';
     if (t.headerStyle === 'banner' && tenant.assets.logoBanner) {
       logoHtml = `<img class="hero-banner-logo" src="${tenant.assets.logoBanner}" alt="${escapeHtml(tenant.name)}">`;
@@ -448,8 +451,6 @@
 
     return `
       <div class="client-hero">
-        ${showStickers ? `<img class="hero-sticker left" src="${stickers[0].src}" alt="">` : ''}
-        ${showStickers ? `<img class="hero-sticker right" src="${stickers[1].src}" alt="">` : ''}
         ${logoHtml}
         ${showTitleText ? `
           <h1 class="hero-name">${escapeHtml(tenant.name)}</h1>
@@ -457,12 +458,12 @@
         ` : `<p class="hero-subtitle" style="margin-top:2px;">${escapeHtml(tenant.rubro)}</p>`}
 
         <div class="hero-meta-row">
-          <span class="pill pill-gold">★ ${tenant.rating} (${tenant.reviewsCount})</span>
-          <span class="pill pill-primary">📍 ${escapeHtml(tenant.address.split('(')[0].trim())}</span>
+          <span class="pill pill-gold">${ic('star', 12)} ${tenant.rating} (${tenant.reviewsCount})</span>
+          <span class="pill pill-primary">${ic('mapPin', 12)} ${escapeHtml(tenant.address.split('(')[0].trim())}</span>
         </div>
 
         ${tenant.announcement ? `
-          <div class="announcement-strip">${escapeHtml(tenant.announcement)}</div>
+          <div class="announcement-strip">${ic('bell', 13)}<span>${escapeHtml(tenant.announcement)}</span></div>
         ` : ''}
       </div>
 
@@ -470,15 +471,15 @@
         <div class="mascot-banner">
           <img src="${tenant.assets.mascot}" alt="${escapeHtml(tenant.ownerName)}">
           <div class="mascot-banner-text">
-            <h4>¡Hola linda! Soy ${escapeHtml(tenant.ownerName)} 💖</h4>
-            <p>Elegí tu servicio, sumá extras o retiro si necesitás, y reservá tu turno en 1 minuto.</p>
+            <h4>Hola, soy ${escapeHtml(tenant.ownerName)}</h4>
+            <p>Elegí tu servicio, sumá extras o retiro si necesitás, y reservá tu turno online en menos de un minuto.</p>
           </div>
         </div>
       ` : ''}
 
       ${portfolio.length > 0 ? `
         <div class="section-title">
-          <span>📸 Trabajos de referencia</span>
+          <span class="ic-row">${ic('camera', 16)}<span>Trabajos de referencia</span></span>
           <button class="btn btn-soft btn-sm" style="padding:4px 10px;font-size:11px;" data-action="client-tab" data-tab="portfolio">Ver todos (${portfolio.length})</button>
         </div>
         <div class="portfolio-strip">
@@ -487,7 +488,7 @@
               <div class="portfolio-thumb-wrap">
                 ${w.src
                   ? `<img class="portfolio-thumb" src="${w.src}" alt="${escapeHtml(w.title)}">`
-                  : `<div class="portfolio-placeholder" style="background:${w.gradient};"><span>${w.emoji || '✨'}</span></div>`}
+                  : `<div class="portfolio-placeholder" style="background:${w.gradient};color:#fff;">${ic('image', 28)}</div>`}
                 <span class="portfolio-tag">${escapeHtml(w.serviceName)}</span>
               </div>
               <div class="portfolio-meta">
@@ -504,18 +505,18 @@
           <div style="display:flex;align-items:center;gap:8px;min-width:0;">
             ${state.client.cart.selectedWork.src
               ? `<img src="${state.client.cart.selectedWork.src}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;">`
-              : `<span style="font-size:20px;">✨</span>`}
+              : ic('image', 20)}
             <div style="min-width:0;">
-              <div style="font-size:10.5px;color:var(--brand-primary);font-weight:800;">ESTILO DE REFERENCIA ELEGIDO</div>
+              <div style="font-size:10px;color:var(--brand-primary);font-weight:800;letter-spacing:0.03em;">REFERENCIA SELECCIONADA</div>
               <div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(state.client.cart.selectedWork.title)}</div>
             </div>
           </div>
-          <button class="icon-close-btn" style="width:24px;height:24px;font-size:12px;" data-action="clear-work-ref">✕</button>
+          <button class="icon-close-btn" style="width:24px;height:24px;" data-action="clear-work-ref">${ic('x', 13)}</button>
         </div>
       ` : ''}
 
       <div class="section-title">
-        <span>💅 Lista de Precios</span>
+        <span class="ic-row">${ic('layers', 16)}<span>Lista de Precios</span></span>
         <span style="font-size:11px;font-weight:600;color:var(--brand-muted);">${escapeHtml(activeCat.hint)}</span>
       </div>
 
@@ -536,7 +537,7 @@
           }
           return `
             <button class="cat-tab ${cat.id === activeCat.id ? 'active' : ''}" data-action="select-cat" data-cat="${cat.id}">
-              <span>${cat.icon}</span>
+              ${ic(cat.icon, 14)}
               <span>${escapeHtml(cat.name)}</span>
               ${count > 0 ? `<span class="tab-count">${count}</span>` : ''}
             </button>
@@ -554,15 +555,15 @@
         if (svc.countable && activeCat.mode === 'multi') {
           controlHtml = extraQty > 0
             ? `<div class="qty-control">
-                 <button class="qty-btn" data-action="qty-extra" data-id="${svc.id}" data-delta="-1">−</button>
+                 <button class="qty-btn" data-action="qty-extra" data-id="${svc.id}" data-delta="-1">${ic('minus', 13)}</button>
                  <span class="qty-val">${extraQty}</span>
-                 <button class="qty-btn" data-action="qty-extra" data-id="${svc.id}" data-delta="1">+</button>
+                 <button class="qty-btn" data-action="qty-extra" data-id="${svc.id}" data-delta="1">${ic('plus', 13)}</button>
                </div>`
-            : `<button class="select-toggle" data-action="qty-extra" data-id="${svc.id}" data-delta="1">+ Sumar</button>`;
+            : `<button class="select-toggle ic-row" data-action="qty-extra" data-id="${svc.id}" data-delta="1">${ic('plus', 13)}<span>Sumar</span></button>`;
         } else {
           controlHtml = `
-            <button class="select-toggle ${isSelected ? 'selected' : ''}" data-action="toggle-service" data-id="${svc.id}" data-mode="${activeCat.mode}">
-              ${isSelected ? '✓ Elegido' : '+ Elegir'}
+            <button class="select-toggle ic-row ${isSelected ? 'selected' : ''}" data-action="toggle-service" data-id="${svc.id}" data-mode="${activeCat.mode}">
+              ${isSelected ? ic('check', 13) : ic('plus', 13)}<span>${isSelected ? 'Elegido' : 'Elegir'}</span>
             </button>
           `;
         }
@@ -572,12 +573,12 @@
             <div class="service-info">
               <div class="service-name-row">
                 <span class="service-name">${escapeHtml(svc.name)}</span>
-                ${svc.countable && svc.unit ? `<span class="pill pill-primary" style="font-size:10px;padding:2px 6px;">x ${escapeHtml(svc.unit)}</span>` : ''}
+                ${svc.countable && svc.unit ? `<span class="pill pill-primary" style="font-size:10px;padding:2px 6px;">por ${escapeHtml(svc.unit)}</span>` : ''}
               </div>
               <p class="service-desc">${escapeHtml(svc.desc)}</p>
               <div class="service-meta">
                 <span class="service-price">${svc.desde ? '<span class="service-desde">desde </span>' : ''}${formatARS(svc.price)}</span>
-                <span class="service-dur">⏱ ${formatDuration(svc.duration)}</span>
+                <span class="service-dur ic-row">${ic('clock', 12)} ${formatDuration(svc.duration)}</span>
               </div>
             </div>
             ${controlHtml}
@@ -587,7 +588,7 @@
 
       ${cart.items.length === 0 ? `
         <div class="card" style="text-align:center;padding:12px;margin-top:8px;">
-          <span style="font-size:12px;color:var(--brand-muted);">👆 Tocá un servicio para calcular el total, la duración y reservar tu turno.</span>
+          <span style="font-size:12px;color:var(--brand-muted);">Seleccioná un servicio para calcular el total, la duración y elegir tu horario.</span>
         </div>
       ` : ''}
     `;
@@ -602,10 +603,10 @@
 
     return `
       <div class="section-title" style="margin-top:4px;">
-        <span>📸 Galería de Trabajos</span>
+        <span class="ic-row">${ic('camera', 17)}<span>Galería de Trabajos</span></span>
         <span class="pill pill-primary">${works.length} fotos</span>
       </div>
-      <p class="section-sub">Inspirate en trabajos reales de ${escapeHtml(tenant.name)}. Tocá cualquiera para reservar ese mismo estilo.</p>
+      <p class="section-sub">Inspirate en trabajos realizados por ${escapeHtml(tenant.name)}. Tocá uno para reservar ese estilo.</p>
 
       ${serviceNames.length > 1 ? `
         <div class="cat-tabs">
@@ -622,7 +623,7 @@
             <div class="portfolio-thumb-wrap" style="height:152px;">
               ${w.src
                 ? `<img class="portfolio-thumb" src="${w.src}" alt="${escapeHtml(w.title)}">`
-                : `<div class="portfolio-placeholder" style="background:${w.gradient};"><span>${w.emoji || '✨'}</span></div>`}
+                : `<div class="portfolio-placeholder" style="background:${w.gradient};color:#fff;">${ic('image', 28)}</div>`}
               <span class="portfolio-tag">${escapeHtml(w.serviceName)}</span>
             </div>
             <div class="portfolio-meta">
@@ -644,13 +645,13 @@
       <div class="sheet-backdrop" data-action="close-work">
         <div class="sheet-panel" onclick="event.stopPropagation()">
           <div class="sheet-header">
-            <h3>📸 Referencia de trabajo</h3>
-            <button class="icon-close-btn" data-action="close-work">✕</button>
+            <h3 class="ic-row">${ic('camera', 16)}<span>Referencia de trabajo</span></h3>
+            <button class="icon-close-btn" data-action="close-work">${ic('x', 15)}</button>
           </div>
           <div class="sheet-body">
             ${work.src
               ? `<img class="portfolio-lightbox-img" src="${work.src}" alt="${escapeHtml(work.title)}">`
-              : `<div class="portfolio-lightbox-img" style="background:${work.gradient};display:flex;align-items:center;justify-content:center;font-size:56px;">${work.emoji || '✨'}</div>`}
+              : `<div class="portfolio-lightbox-img" style="background:${work.gradient};display:flex;align-items:center;justify-content:center;color:#fff;">${ic('image', 48)}</div>`}
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
               <h4 style="margin:0;font-size:16px;font-weight:800;">${escapeHtml(work.title)}</h4>
               <span class="pill pill-primary">${escapeHtml(work.serviceName)}</span>
@@ -660,13 +661,13 @@
             </p>
             <div class="card" style="padding:10px 12px;margin-bottom:0;">
               <div style="font-size:11.5px;color:var(--brand-muted);">
-                💡 Al tocar <strong>"Quiero este estilo"</strong>, preseleccionamos <strong>${escapeHtml(svc ? svc.name : work.serviceName)}</strong> y guardamos esta foto como tu diseño de referencia para ${escapeHtml(tenant.ownerName)}.
+                Al seleccionar <strong>"Quiero este estilo"</strong>, preseleccionamos <strong>${escapeHtml(svc ? svc.name : work.serviceName)}</strong> y adjuntamos esta imagen como referencia para ${escapeHtml(tenant.ownerName)}.
               </div>
             </div>
           </div>
           <div class="sheet-footer">
             <button class="btn btn-outline" data-action="close-work">Cerrar</button>
-            <button class="btn btn-primary" style="flex:1;" data-action="apply-work-style" data-id="${work.id}">✨ Quiero este estilo</button>
+            <button class="btn btn-primary" style="flex:1;" data-action="apply-work-style" data-id="${work.id}">${ic('sparkles', 15)}<span>Quiero este estilo</span></button>
           </div>
         </div>
       </div>
@@ -677,25 +678,25 @@
     const mine = tenant.appointments.filter(a => a.isMine);
 
     const statusBadge = st => {
-      if (st === 'pending_deposit') return `<span class="pill pill-warning">⏳ Validando seña</span>`;
-      if (st === 'confirmed') return `<span class="pill pill-success">✅ Confirmado</span>`;
-      if (st === 'completed') return `<span class="pill pill-primary">💖 Realizado</span>`;
-      return `<span class="pill pill-danger">❌ Cancelado</span>`;
+      if (st === 'pending_deposit') return `<span class="pill pill-warning">${ic('clock', 11)} Validando seña</span>`;
+      if (st === 'confirmed') return `<span class="pill pill-success">${ic('checkCircle', 11)} Confirmado</span>`;
+      if (st === 'completed') return `<span class="pill pill-primary">${ic('check', 11)} Realizado</span>`;
+      return `<span class="pill pill-danger">${ic('xCircle', 11)} Cancelado</span>`;
     };
 
     return `
       <div class="section-title" style="margin-top:4px;">
-        <span>📅 Mis Turnos</span>
+        <span class="ic-row">${ic('calendar', 17)}<span>Mis Turnos</span></span>
         <span class="pill pill-primary">${mine.length}</span>
       </div>
-      <p class="section-sub">Seguí el estado de tus reservas y tu seña en tiempo real.</p>
+      <p class="section-sub">Seguí el estado de tus reservas y la validación de tu seña.</p>
 
       ${mine.length === 0 ? `
         <div class="card" style="text-align:center;padding:24px 16px;">
-          <div style="font-size:34px;margin-bottom:8px;">💅</div>
+          <div style="color:var(--brand-primary);margin-bottom:8px;">${ic('calendar', 34)}</div>
           <div style="font-weight:800;margin-bottom:4px;">Todavía no tenés turnos</div>
-          <p style="font-size:12px;color:var(--brand-muted);margin:0 0 12px;">Elegí tus servicios favoritos y reservá tu horario.</p>
-          <button class="btn btn-primary btn-sm" data-action="client-tab" data-tab="home">Ver servicios ✨</button>
+          <p style="font-size:12px;color:var(--brand-muted);margin:0 0 12px;">Elegí tus servicios y reservá tu horario disponible.</p>
+          <button class="btn btn-primary btn-sm" data-action="client-tab" data-tab="home">Ver servicios</button>
         </div>
       ` : mine.map(a => {
         const dInfo = formatDateLabel(a.date);
@@ -710,22 +711,22 @@
             <div style="font-size:12px;color:var(--brand-muted);margin-bottom:8px;">
               ${a.items.map(i => `${i.qty > 1 ? i.qty + 'x ' : ''}${escapeHtml(i.name)}`).join(' + ')}
             </div>
-            ${a.designRef ? `<div style="font-size:11.5px;margin-bottom:8px;">🎨 Diseño ref: <strong>${escapeHtml(a.designRef)}</strong></div>` : ''}
+            ${a.designRef ? `<div class="ic-row" style="font-size:11.5px;margin-bottom:8px;color:var(--brand-muted);">${ic('image', 13)}<span>Referencia: <strong style="color:var(--brand-text);">${escapeHtml(a.designRef)}</strong></span></div>` : ''}
             <div style="background:var(--brand-bg);border-radius:12px;padding:9px 11px;font-size:12px;margin-bottom:10px;">
               <div class="summary-row"><span>Total estimado</span><strong>${formatARS(a.total)}</strong></div>
               <div class="summary-row"><span>Seña (${escapeHtml(a.paymentMethod)})</span><strong style="color:#16a34a;">− ${formatARS(a.depositAmount)}</strong></div>
               <div class="summary-row" style="font-weight:800;"><span>Resta abonar en el turno</span><span>${formatARS(balance)}</span></div>
             </div>
             ${a.status === 'pending_deposit' ? `
-              <div style="font-size:11.5px;color:#c27803;margin-bottom:8px;">
-                💡 ${escapeHtml(tenant.ownerName)} está revisando tu comprobante. Probá aprobarlo desde el <strong>Panel Emprendimiento</strong> para verlo cambiar en vivo.
+              <div style="font-size:11.5px;color:#b45309;margin-bottom:8px;">
+                ${escapeHtml(tenant.ownerName)} está revisando tu comprobante. Aprobalo desde el Panel Admin para ver el cambio en vivo.
               </div>
             ` : ''}
             <div style="display:flex;gap:8px;">
-              <button class="btn btn-soft btn-sm" style="flex:1;" data-action="toast" data-msg="💬 Abriendo chat de WhatsApp con ${escapeHtml(tenant.name)}...">💬 WhatsApp</button>
+              <button class="btn btn-soft btn-sm" style="flex:1;" data-action="toast" data-msg="Abriendo WhatsApp de ${escapeHtml(tenant.name)}...">${ic('messageCircle', 14)}<span>WhatsApp</span></button>
               ${tenant.bookingRules.allowReschedule
-                ? `<button class="btn btn-outline btn-sm" data-action="toast" data-msg="📅 Podés solicitar reprogramación hasta 24 hs antes.">Reprogramar</button>`
-                : `<button class="btn btn-outline btn-sm" style="opacity:0.55;" data-action="toast" data-msg="⚠️ Según la política vigente, los turnos no pueden ser movidos.">🔒 Sin cambios</button>`}
+                ? `<button class="btn btn-outline btn-sm" data-action="toast" data-msg="Podés reprogramar hasta 24 hs antes.">Reprogramar</button>`
+                : `<button class="btn btn-outline btn-sm" style="opacity:0.6;" data-action="toast" data-msg="Según la política vigente, los turnos no pueden ser movidos.">${ic('lock', 12)}<span>Sin cambios</span></button>`}
             </div>
           </div>
         `;
@@ -735,15 +736,14 @@
 
   function renderClientInfo(tenant) {
     const r = tenant.bookingRules;
-    const stickers = tenant.assets.stickers || [];
 
     return `
       <div class="section-title" style="margin-top:4px;">
-        <span>📋 Política de Turnos</span>
+        <span class="ic-row">${ic('shieldCheck', 17)}<span>Política de Turnos</span></span>
         <span class="pill pill-primary">Obligatoria</span>
       </div>
 
-      ${r.importantNotice ? `<div class="important-box">⚠️ ${escapeHtml(r.importantNotice)}</div>` : ''}
+      ${r.importantNotice ? `<div class="important-box ic-row" style="justify-content:center;">${ic('alertTriangle', 15)}<span>${escapeHtml(r.importantNotice)}</span></div>` : ''}
 
       <div class="policy-card">
         ${r.policySections.map(sec => `
@@ -756,32 +756,23 @@
         `).join('')}
       </div>
 
-      <div class="section-title"><span>📍 Estudio y Horarios</span></div>
+      <div class="section-title"><span class="ic-row">${ic('mapPin', 16)}<span>Estudio y Horarios</span></span></div>
       <div class="card">
         <div style="font-weight:800;font-size:14px;margin-bottom:4px;">${escapeHtml(tenant.name)} ${escapeHtml(tenant.subtitle)}</div>
-        <div style="font-size:12px;color:var(--brand-muted);margin-bottom:8px;">📍 ${escapeHtml(tenant.address)}</div>
-        <div style="font-size:12px;margin-bottom:10px;">
+        <div class="ic-row" style="font-size:12px;color:var(--brand-muted);margin-bottom:10px;">${ic('mapPin', 13)}<span>${escapeHtml(tenant.address)}</span></div>
+        <div style="font-size:12px;margin-bottom:12px;">
           ${tenant.schedule.days.map(d => `
-            <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dashed var(--brand-border);">
+            <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--brand-border);">
               <span style="font-weight:700;">${d.label}</span>
               <span style="color:${d.enabled ? 'var(--brand-text)' : 'var(--brand-muted)'};">${d.enabled ? `${d.start} a ${d.end} hs` : 'Cerrado'}</span>
             </div>
           `).join('')}
         </div>
         <div style="display:flex;gap:8px;">
-          <button class="btn btn-primary btn-sm" style="flex:1;" data-action="toast" data-msg="💬 WhatsApp: ${escapeHtml(tenant.whatsappDisplay)}">💬 WhatsApp</button>
-          <button class="btn btn-soft btn-sm" style="flex:1;" data-action="toast" data-msg="📷 Instagram: ${escapeHtml(tenant.instagram)}">📷 Instagram</button>
+          <button class="btn btn-primary btn-sm" style="flex:1;" data-action="toast" data-msg="WhatsApp: ${escapeHtml(tenant.whatsappDisplay)}">${ic('messageCircle', 14)}<span>WhatsApp</span></button>
+          <button class="btn btn-soft btn-sm" style="flex:1;" data-action="toast" data-msg="Instagram: ${escapeHtml(tenant.instagram)}">${ic('instagram', 14)}<span>Instagram</span></button>
         </div>
       </div>
-
-      ${tenant.theme.showStickers && stickers.length > 0 ? `
-        <div class="card" style="text-align:center;">
-          <div style="font-size:11.5px;font-weight:700;color:var(--brand-muted);margin-bottom:8px;">✨ Vibe de la marca</div>
-          <div class="sticker-strip" style="justify-content:center;">
-            ${stickers.map(st => `<img class="sticker-thumb" src="${st.src}" alt="${escapeHtml(st.label)}">`).join('')}
-          </div>
-        </div>
-      ` : ''}
     `;
   }
 
@@ -801,8 +792,8 @@
     if (w.step === 1) {
       stepTitle = '1. Elegí día y horario';
       stepBody = `
-        <div style="font-size:12px;color:var(--brand-muted);margin-bottom:8px;">
-          Duración estimada: <strong>${formatDuration(cart.duration)}</strong>
+        <div class="ic-row" style="font-size:12px;color:var(--brand-muted);margin-bottom:10px;">
+          ${ic('clock', 13)}<span>Duración estimada: <strong style="color:var(--brand-text);">${formatDuration(cart.duration)}</strong></span>
         </div>
         <div class="date-strip">
           ${days.map(d => {
@@ -833,7 +824,7 @@
       `;
       footerHtml = `
         <button class="btn btn-outline" data-action="close-wizard">Volver</button>
-        <button class="btn btn-primary" style="flex:1;${!w.time ? 'opacity:0.5;' : ''}" ${!w.time ? 'disabled' : ''} data-action="wiz-next">Continuar →</button>
+        <button class="btn btn-primary" style="flex:1;${!w.time ? 'opacity:0.5;' : ''}" ${!w.time ? 'disabled' : ''} data-action="wiz-next"><span>Continuar</span>${ic('chevronRight', 15)}</button>
       `;
     } else if (w.step === 2) {
       stepTitle = '2. Tus datos y diseño';
@@ -853,18 +844,18 @@
         </div>
         ${r.askReferencePhoto ? `
           <div class="field">
-            <label>🎨 Diseño de referencia (opcional)</label>
+            <label>Diseño de referencia (opcional)</label>
             <div class="design-grid">
               ${portfolioRefOptions.map(p => `
-                <button type="button" class="design-card ${w.designRef === p.title ? 'active' : ''}" style="background:${p.src ? 'var(--brand-surface)' : p.gradient};color:var(--brand-text);border:1.5px solid ${w.designRef === p.title ? 'var(--brand-primary)' : 'var(--brand-border)'};" data-action="wiz-design" data-val="${escapeHtml(p.title)}">
-                  ${p.src ? `<img class="design-card-img" src="${p.src}" alt="">` : `<span style="font-size:20px;">${p.emoji || '✨'}</span>`}
+                <button type="button" class="design-card ${w.designRef === p.title ? 'active' : ''}" style="background:var(--brand-surface);color:var(--brand-text);border:1.5px solid ${w.designRef === p.title ? 'var(--brand-primary)' : 'var(--brand-border)'};" data-action="wiz-design" data-val="${escapeHtml(p.title)}">
+                  ${p.src ? `<img class="design-card-img" src="${p.src}" alt="">` : `<div class="design-card-img" style="background:${p.gradient};display:flex;align-items:center;justify-content:center;color:#fff;">${ic('image', 16)}</div>`}
                   <span style="line-height:1.25;">${escapeHtml(p.title)}</span>
                 </button>
               `).join('')}
             </div>
             <div style="margin-top:8px;">
               <label class="btn btn-soft btn-sm btn-block" style="margin:0;cursor:pointer;">
-                📎 ${w.customDesignImg ? 'Cambiar mi foto de referencia ✓' : 'Subir mi propia foto de referencia'}
+                ${ic('upload', 14)}<span>${w.customDesignImg ? 'Cambiar foto de referencia' : 'Subir mi propia foto de referencia'}</span>
                 <input type="file" accept="image/*" style="display:none;" data-action-change="upload-ref-photo">
               </label>
               ${w.customDesignImg ? `<img src="${w.customDesignImg}" style="width:100%;max-height:120px;object-fit:cover;border-radius:12px;margin-top:6px;">` : ''}
@@ -872,18 +863,18 @@
           </div>
         ` : ''}
         <div class="field">
-          <label>Notas (¿tenés producto para retirar o alguna preferencia?)</label>
+          <label>Notas adicionales (retiro o preferencias)</label>
           <textarea rows="2" data-bind="wiz-notes" placeholder="Ej: Quiero forma almendra corta...">${escapeHtml(w.notes)}</textarea>
         </div>
       `;
       footerHtml = `
-        <button class="btn btn-outline" data-action="wiz-prev">← Atrás</button>
-        <button class="btn btn-primary" style="flex:1;" data-action="wiz-next">Ver políticas →</button>
+        <button class="btn btn-outline" data-action="wiz-prev">${ic('chevronLeft', 15)}<span>Atrás</span></button>
+        <button class="btn btn-primary" style="flex:1;" data-action="wiz-next"><span>Ver políticas</span>${ic('chevronRight', 15)}</button>
       `;
     } else if (w.step === 3) {
       stepTitle = '3. Política de Turnos';
       stepBody = `
-        ${r.importantNotice ? `<div class="important-box">⚠️ ${escapeHtml(r.importantNotice)}</div>` : ''}
+        ${r.importantNotice ? `<div class="important-box ic-row" style="justify-content:center;">${ic('alertTriangle', 15)}<span>${escapeHtml(r.importantNotice)}</span></div>` : ''}
         <div class="policy-card">
           ${r.policySections.map(sec => `
             <div class="policy-block">
@@ -898,15 +889,15 @@
         </label>
       `;
       footerHtml = `
-        <button class="btn btn-outline" data-action="wiz-prev">← Atrás</button>
-        <button class="btn btn-primary" style="flex:1;${!w.acceptedPolicy ? 'opacity:0.45;' : ''}" ${!w.acceptedPolicy ? 'disabled' : ''} data-action="wiz-next">Ir a la seña →</button>
+        <button class="btn btn-outline" data-action="wiz-prev">${ic('chevronLeft', 15)}<span>Atrás</span></button>
+        <button class="btn btn-primary" style="flex:1;${!w.acceptedPolicy ? 'opacity:0.45;' : ''}" ${!w.acceptedPolicy ? 'disabled' : ''} data-action="wiz-next"><span>Ir a la seña</span>${ic('chevronRight', 15)}</button>
       `;
     } else if (w.step === 4) {
       stepTitle = r.depositRequired ? '4. Abonar Seña' : '4. Confirmar Turno';
       const dInfo = formatDateLabel(w.date);
       stepBody = `
         <div class="card">
-          <div style="font-size:12px;font-weight:800;color:var(--brand-primary);margin-bottom:6px;">📅 ${dInfo.full} · ${w.time} hs (${formatDuration(cart.duration)})</div>
+          <div class="ic-row" style="font-size:12px;font-weight:800;color:var(--brand-primary);margin-bottom:8px;">${ic('calendar', 14)}<span>${dInfo.full} · ${w.time} hs (${formatDuration(cart.duration)})</span></div>
           ${cart.items.map(i => `
             <div class="summary-row">
               <span>${i.qty > 1 ? i.qty + 'x ' : ''}${escapeHtml(i.name)}</span>
@@ -931,8 +922,8 @@
 
         ${r.depositRequired ? `
           <div style="display:flex;gap:8px;margin-bottom:10px;">
-            <button class="btn ${w.paymentMethod === 'transfer' ? 'btn-primary' : 'btn-outline'} btn-sm" style="flex:1;" data-action="wiz-paymethod" data-val="transfer">🏦 Transferencia</button>
-            ${r.mercadoPagoEnabled ? `<button class="btn ${w.paymentMethod === 'mp' ? 'btn-primary' : 'btn-outline'} btn-sm" style="flex:1;" data-action="wiz-paymethod" data-val="mp">💳 Mercado Pago</button>` : ''}
+            <button class="btn ${w.paymentMethod === 'transfer' ? 'btn-primary' : 'btn-outline'} btn-sm" style="flex:1;" data-action="wiz-paymethod" data-val="transfer">${ic('landmark', 14)}<span>Transferencia</span></button>
+            ${r.mercadoPagoEnabled ? `<button class="btn ${w.paymentMethod === 'mp' ? 'btn-primary' : 'btn-outline'} btn-sm" style="flex:1;" data-action="wiz-paymethod" data-val="mp">${ic('creditCard', 14)}<span>Mercado Pago</span></button>` : ''}
           </div>
 
           ${w.paymentMethod === 'transfer' ? `
@@ -944,52 +935,53 @@
                   <div style="font-size:14px;font-weight:800;color:var(--brand-primary);">${escapeHtml(r.alias)}</div>
                   <div style="font-size:11px;color:var(--brand-muted);">Titular: ${escapeHtml(r.holder)}</div>
                 </div>
-                <button class="btn btn-primary btn-sm" data-action="copy-alias" data-alias="${escapeHtml(r.alias)}">Copiar</button>
+                <button class="btn btn-primary btn-sm" data-action="copy-alias" data-alias="${escapeHtml(r.alias)}">${ic('copy', 13)}<span>Copiar</span></button>
               </div>
               <button class="btn ${w.receiptUploaded ? 'btn-success' : 'btn-soft'} btn-block btn-sm" data-action="wiz-receipt">
-                ${w.receiptUploaded ? '✅ Comprobante adjuntado (Transferencia_' + cart.deposit + '.jpg)' : '📎 Adjuntar comprobante de transferencia'}
+                ${w.receiptUploaded ? ic('checkCircle', 14) : ic('upload', 14)}
+                <span>${w.receiptUploaded ? 'Comprobante adjuntado (Transferencia_' + cart.deposit + '.jpg)' : 'Adjuntar comprobante de transferencia'}</span>
               </button>
             </div>
           ` : `
             <div class="card" style="text-align:center;">
-              <div style="font-size:28px;margin-bottom:4px;">💳</div>
+              <div style="color:var(--brand-primary);margin-bottom:6px;">${ic('creditCard', 28)}</div>
               <div style="font-weight:800;font-size:13.5px;margin-bottom:4px;">Pago instantáneo con Mercado Pago</div>
-              <p style="font-size:11.5px;color:var(--brand-muted);margin:0;">Al confirmar, tu seña de <strong>${formatARS(cart.deposit)}</strong> se acredita en el acto y tu turno queda confirmado automáticamente.</p>
+              <p style="font-size:11.5px;color:var(--brand-muted);margin:0;">Al confirmar, tu seña de <strong>${formatARS(cart.deposit)}</strong> se acredita en el acto y tu turno queda confirmado.</p>
             </div>
           `}
         ` : ''}
       `;
       const canSubmit = !r.depositRequired || w.paymentMethod === 'mp' || w.receiptUploaded;
       footerHtml = `
-        <button class="btn btn-outline" data-action="wiz-prev">← Atrás</button>
+        <button class="btn btn-outline" data-action="wiz-prev">${ic('chevronLeft', 15)}<span>Atrás</span></button>
         <button class="btn btn-primary" style="flex:1;${!canSubmit ? 'opacity:0.45;' : ''}" ${!canSubmit ? 'disabled' : ''} data-action="wiz-confirm">
-          ${w.paymentMethod === 'mp' && r.depositRequired ? 'Pagar seña y confirmar ✨' : 'Enviar reserva ✨'}
+          ${ic('check', 15)}<span>${w.paymentMethod === 'mp' && r.depositRequired ? 'Pagar seña y confirmar' : 'Enviar reserva'}</span>
         </button>
       `;
     } else if (w.step === 5 && w.createdBooking) {
       const b = w.createdBooking;
       const dInfo = formatDateLabel(b.date);
-      stepTitle = b.status === 'confirmed' ? '¡Turno Confirmado!' : '¡Solicitud Enviada!';
+      stepTitle = b.status === 'confirmed' ? 'Turno Confirmado' : 'Solicitud Enviada';
       stepBody = `
         <div style="text-align:center;padding:8px 4px;">
-          ${tenant.assets.logoCircular
-            ? `<img src="${tenant.assets.logoCircular}" style="width:76px;height:76px;border-radius:50%;object-fit:cover;margin-bottom:8px;box-shadow:0 6px 18px var(--brand-primary-glow);">`
-            : `<div style="font-size:44px;margin-bottom:6px;">🎉</div>`}
-          <h3 style="margin:0 0 4px;font-family:var(--font-display);font-size:19px;">
-            ${b.status === 'confirmed' ? '¡Te esperamos! 💖' : '¡Recibimos tu comprobante! ⏳'}
+          <div style="width:58px;height:58px;border-radius:50%;margin:0 auto 10px;background:var(--brand-primary-soft);color:var(--brand-primary);display:flex;align-items:center;justify-content:center;">
+            ${b.status === 'confirmed' ? ic('checkCircle', 30) : ic('clock', 30)}
+          </div>
+          <h3 style="margin:0 0 4px;font-family:var(--font-display);font-size:18px;">
+            ${b.status === 'confirmed' ? 'Te esperamos' : 'Comprobante recibido'}
           </h3>
           <p style="font-size:12px;color:var(--brand-muted);margin:0 0 12px;">
             ${b.status === 'confirmed'
-              ? `Tu turno en ${escapeHtml(tenant.name)} ya está agendado.`
+              ? `Tu turno en ${escapeHtml(tenant.name)} ya quedó agendado.`
               : `${escapeHtml(tenant.ownerName)} validará tu seña en breve y recibirás la confirmación.`}
           </p>
 
           <div class="card" style="text-align:left;">
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
               <span class="pill pill-primary">#${b.id}</span>
-              <span class="pill ${b.status === 'confirmed' ? 'pill-success' : 'pill-warning'}">${b.status === 'confirmed' ? '✅ Confirmado' : '⏳ Validando seña'}</span>
+              <span class="pill ${b.status === 'confirmed' ? 'pill-success' : 'pill-warning'}">${b.status === 'confirmed' ? 'Confirmado' : 'Validando seña'}</span>
             </div>
-            <div style="font-size:15px;font-weight:800;margin-bottom:4px;">📅 ${dInfo.full} · ${b.time} hs</div>
+            <div class="ic-row" style="font-size:14.5px;font-weight:800;margin-bottom:4px;">${ic('calendar', 14)}<span>${dInfo.full} · ${b.time} hs</span></div>
             <div style="font-size:12px;color:var(--brand-muted);margin-bottom:8px;">
               ${b.items.map(i => `${i.qty > 1 ? i.qty + 'x ' : ''}${escapeHtml(i.name)}`).join(' + ')}
             </div>
@@ -997,8 +989,8 @@
             <div class="summary-row"><span>Resta el día del turno</span><strong>${formatARS(Math.max(0, b.total - b.depositAmount))}</strong></div>
           </div>
 
-          <button class="btn btn-soft btn-block btn-sm" style="margin-bottom:8px;" data-action="toast" data-msg="📲 Comprobante y resumen enviados por WhatsApp a ${escapeHtml(tenant.ownerName)}">💬 Enviar resumen por WhatsApp</button>
-          <button class="btn btn-outline btn-block btn-sm" data-action="toast" data-msg="📆 Evento guardado en tu calendario">📆 Agregar a Google Calendar</button>
+          <button class="btn btn-soft btn-block btn-sm" style="margin-bottom:8px;" data-action="toast" data-msg="Resumen enviado por WhatsApp a ${escapeHtml(tenant.ownerName)}">${ic('messageCircle', 14)}<span>Enviar resumen por WhatsApp</span></button>
+          <button class="btn btn-outline btn-block btn-sm" data-action="toast" data-msg="Evento guardado en tu calendario">${ic('calendar', 14)}<span>Agregar a Google Calendar</span></button>
         </div>
       `;
       footerHtml = `
@@ -1011,7 +1003,7 @@
         <div class="sheet-panel">
           <div class="sheet-header">
             <h3>${stepTitle}</h3>
-            <button class="icon-close-btn" data-action="close-wizard">✕</button>
+            <button class="icon-close-btn" data-action="close-wizard">${ic('x', 15)}</button>
           </div>
           ${w.step < 5 ? `
             <div class="stepper">
@@ -1026,11 +1018,9 @@
   }
 
   /* =========================================================================
-     RENDER: ADMIN / BUSINESS PHONE
+     RENDER: ADMIN / BUSINESS PHONE (Neutral High-Clarity Multitenant SaaS)
      ========================================================================= */
   function renderAdminPhone(tenant) {
-    const themeVars = getThemeVars(tenant);
-    const darkClass = tenant.theme.isDark ? 'is-dark' : '';
     const pendingCount = tenant.appointments.filter(a => a.status === 'pending_deposit').length;
 
     let bodyHtml = '';
@@ -1042,7 +1032,7 @@
 
     return `
       <div class="phone-frame">
-        <div class="phone-screen ${darkClass}" style="${themeVars}">
+        <div class="phone-screen admin-saas">
           <div class="phone-statusbar">
             <span>14:56</span>
             <div class="phone-notch"></div>
@@ -1050,8 +1040,13 @@
           </div>
 
           <div class="phone-url-pill">
-            <span>🏪 Panel <strong>${escapeHtml(tenant.name)}</strong></span>
-            <button style="border:none;background:transparent;color:var(--brand-primary);font-weight:800;font-size:11px;padding:0;" data-action="admin-open-modal" data-type="qr_share">Compartir link ↗</button>
+            <span class="tenant-chip-badge">
+              <span class="tenant-dot" style="background:${tenant.theme.primary};"></span>
+              <span>${escapeHtml(tenant.name)}</span>
+            </span>
+            <button class="ic-row" style="border:none;background:transparent;color:#4f46e5;font-weight:700;font-size:11px;padding:0;" data-action="admin-open-modal" data-type="qr_share">
+              <span>Compartir link</span>${ic('externalLink', 12)}
+            </button>
           </div>
 
           <div class="phone-scroll" data-scroll-id="admin-scroll">
@@ -1060,24 +1055,24 @@
 
           <nav class="bottom-nav">
             <button class="nav-item ${state.admin.tab === 'agenda' ? 'active' : ''}" data-action="admin-tab" data-tab="agenda">
-              <span class="nav-icon">📅</span>
+              <span class="nav-icon">${ic('calendar', 20)}</span>
               <span>Agenda</span>
               ${pendingCount > 0 ? `<span class="nav-badge">${pendingCount}</span>` : ''}
             </button>
             <button class="nav-item ${state.admin.tab === 'services' ? 'active' : ''}" data-action="admin-tab" data-tab="services">
-              <span class="nav-icon">💅</span>
+              <span class="nav-icon">${ic('tag', 20)}</span>
               <span>Precios</span>
             </button>
             <button class="nav-item ${state.admin.tab === 'rules' ? 'active' : ''}" data-action="admin-tab" data-tab="rules">
-              <span class="nav-icon">⚙️</span>
+              <span class="nav-icon">${ic('sliders', 20)}</span>
               <span>Reglas</span>
             </button>
             <button class="nav-item ${state.admin.tab === 'brand' ? 'active' : ''}" data-action="admin-tab" data-tab="brand">
-              <span class="nav-icon">🎨</span>
-              <span>Marca</span>
+              <span class="nav-icon">${ic('layout', 20)}</span>
+              <span>Mi Link</span>
             </button>
             <button class="nav-item ${state.admin.tab === 'caja' ? 'active' : ''}" data-action="admin-tab" data-tab="caja">
-              <span class="nav-icon">💰</span>
+              <span class="nav-icon">${ic('wallet', 20)}</span>
               <span>Caja</span>
             </button>
           </nav>
@@ -1095,45 +1090,44 @@
       .filter(a => a.date === state.admin.selectedDate && a.status !== 'cancelled')
       .sort((a, b) => a.time.localeCompare(b.time));
 
-    const todayTotal = dayAppts.reduce((acc, a) => acc + (a.total || 0), 0);
+    const realDayAppts = dayAppts.filter(a => a.status !== 'blocked');
+    const dayBalanceToCollect = realDayAppts.reduce((acc, a) => acc + Math.max(0, (a.total || 0) - (a.depositAmount || 0)), 0);
 
     return `
       <div class="admin-header">
-        <div class="admin-profile">
-          ${tenant.assets.logoCircular
-            ? `<img class="admin-avatar" src="${tenant.assets.logoCircular}" alt="">`
-            : `<div class="admin-avatar-mono">${escapeHtml(tenant.assets.monogram || 'A')}</div>`}
-          <div>
-            <div style="font-size:11.5px;color:var(--brand-muted);font-weight:600;">¡Hola ${escapeHtml(tenant.ownerName)}! ✨</div>
-            <div style="font-family:var(--font-display);font-size:16px;font-weight:800;">Tu Agenda</div>
-          </div>
+        <div>
+          <div style="font-size:11.5px;color:var(--brand-muted);font-weight:600;">Panel de gestión · ${escapeHtml(tenant.ownerName)}</div>
+          <div style="font-size:18px;font-weight:800;color:#0f172a;">Agenda del día</div>
         </div>
-        <button class="btn btn-primary btn-sm" data-action="admin-open-modal" data-type="new_manual_appt">+ Turno</button>
+        <button class="btn btn-primary btn-sm" data-action="admin-open-modal" data-type="new_manual_appt">${ic('plus', 14)}<span>Turno</span></button>
       </div>
 
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-val">${dayAppts.filter(a => a.status !== 'blocked').length}</div>
-          <div class="kpi-lbl">Turnos día</div>
+          <div class="kpi-val">${realDayAppts.length}</div>
+          <div class="kpi-lbl">Turnos del día</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-val" style="color:${pendingList.length ? '#f59e0b' : '#16a34a'};">${pendingList.length}</div>
-          <div class="kpi-lbl">Señas x validar</div>
+          <div class="kpi-val" style="color:${pendingList.length ? '#d97706' : '#16a34a'};">${pendingList.length}</div>
+          <div class="kpi-lbl">Señas a validar</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-val" style="color:var(--brand-primary);font-size:14px;">${formatARS(todayTotal)}</div>
-          <div class="kpi-lbl">Estimado día</div>
+          <div class="kpi-val" style="color:#0f172a;font-size:14px;">${formatARS(dayBalanceToCollect)}</div>
+          <div class="kpi-lbl">Saldo a cobrar</div>
         </div>
       </div>
 
       ${pendingList.length > 0 ? `
-        <div class="card" style="border-color:rgba(245,158,11,0.5);background:rgba(245,158,11,0.08);">
-          <div style="font-size:12px;font-weight:800;color:#c27803;margin-bottom:8px;">⏳ Comprobantes de seña pendientes (${pendingList.length})</div>
+        <div class="admin-pending-banner">
+          <div class="admin-pending-head">
+            <span class="ic-row">${ic('alertCircle', 15)}<span>Comprobantes pendientes (${pendingList.length})</span></span>
+            <span style="font-size:10.5px;font-weight:700;">Requiere acción</span>
+          </div>
           ${pendingList.map(p => `
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px dashed rgba(245,158,11,0.3);">
+            <div class="admin-pending-item">
               <div style="min-width:0;">
-                <div style="font-size:12.5px;font-weight:800;">${escapeHtml(p.clientName)}</div>
-                <div style="font-size:11px;color:var(--brand-muted);">${formatDateLabel(p.date).full} · ${p.time} · Seña ${formatARS(p.depositAmount)}</div>
+                <div style="font-size:12.5px;font-weight:800;color:#0f172a;">${escapeHtml(p.clientName)}</div>
+                <div style="font-size:11px;color:#78350f;">${formatDateLabel(p.date).full} · ${p.time} hs · Seña ${formatARS(p.depositAmount)}</div>
               </div>
               <button class="btn btn-success btn-sm" style="padding:6px 10px;font-size:11px;" data-action="admin-open-modal" data-type="appt_detail" data-id="${p.id}">Revisar</button>
             </div>
@@ -1143,7 +1137,7 @@
 
       <div class="date-strip">
         ${days.map(d => {
-          const cnt = tenant.appointments.filter(a => a.date === d.iso && a.status !== 'cancelled').length;
+          const cnt = tenant.appointments.filter(a => a.date === d.iso && a.status !== 'cancelled' && a.status !== 'blocked').length;
           return `
             <button class="date-chip ${state.admin.selectedDate === d.iso ? 'active' : ''}" data-action="admin-date" data-date="${d.iso}">
               <span class="d-day">${d.dayShort}</span>
@@ -1156,37 +1150,46 @@
 
       <div class="section-title" style="margin-top:4px;">
         <span>${formatDateLabel(state.admin.selectedDate).full}</span>
-        <button class="btn btn-soft btn-sm" style="padding:5px 10px;font-size:11px;" data-action="admin-open-modal" data-type="block_slot">🔒 Bloquear hora</button>
+        <button class="btn btn-outline btn-sm" style="padding:5px 10px;font-size:11px;" data-action="admin-open-modal" data-type="block_slot">${ic('lock', 12)}<span>Bloquear hora</span></button>
       </div>
 
       ${dayAppts.length === 0 ? `
-        <div class="card" style="text-align:center;padding:22px;color:var(--brand-muted);font-size:12.5px;">
-          No hay turnos agendados para este día.
+        <div class="card" style="text-align:center;padding:24px 14px;color:var(--brand-muted);font-size:12.5px;">
+          Sin turnos programados para esta fecha.
         </div>
       ` : dayAppts.map(a => {
-        const cls = a.status === 'pending_deposit' ? 'pending' : a.status === 'confirmed' ? 'confirmed' : a.status === 'blocked' ? 'blocked' : '';
+        const statusClass = a.status === 'pending_deposit' ? 'status-pending' : a.status === 'confirmed' ? 'status-confirmed' : a.status === 'completed' ? 'status-completed' : '';
         const badge = a.status === 'pending_deposit'
-          ? `<span class="pill pill-warning">⏳ Validar seña</span>`
+          ? `<span class="pill pill-warning">Validar seña</span>`
           : a.status === 'confirmed'
-            ? `<span class="pill pill-success">✅ Confirmado</span>`
+            ? `<span class="pill pill-success">Confirmado</span>`
             : a.status === 'completed'
-              ? `<span class="pill pill-primary">💖 Completado</span>`
-              : `<span class="pill">🔒 Bloqueado</span>`;
+              ? `<span class="pill pill-primary">Completado</span>`
+              : `<span class="pill" style="background:#f1f5f9;color:#475569;">Bloqueado</span>`;
+
+        const balance = Math.max(0, (a.total || 0) - (a.depositAmount || 0));
 
         return `
-          <div class="appt-card ${cls}" data-action="admin-open-modal" data-type="appt_detail" data-id="${a.id}">
-            <div class="appt-top">
-              <span class="appt-time">🕒 ${a.time} hs · ${formatDuration(a.duration)}</span>
-              ${badge}
+          <div class="appt-timeline-card ${statusClass}" data-action="admin-open-modal" data-type="appt_detail" data-id="${a.id}">
+            <div class="appt-time-col">
+              <span class="appt-time-main">${a.time}</span>
+              <span class="appt-time-dur">${formatDuration(a.duration)}</span>
             </div>
-            <div class="appt-client">${escapeHtml(a.clientName)} ${a.clientIg ? `<span style="font-weight:500;color:var(--brand-muted);font-size:11.5px;">${escapeHtml(a.clientIg)}</span>` : ''}</div>
-            ${a.status !== 'blocked' ? `
-              <div class="appt-services">${a.items.map(i => `${i.qty > 1 ? i.qty + 'x ' : ''}${escapeHtml(i.name)}`).join(' + ')}</div>
-              <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;">
-                <span>Total: ${formatARS(a.total)}</span>
-                <span style="color:var(--brand-primary);">Resta: ${formatARS(Math.max(0, a.total - a.depositAmount))}</span>
+            <div class="appt-info-col">
+              <div class="appt-row-top">
+                <span style="font-weight:800;font-size:13.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(a.clientName)}</span>
+                ${badge}
               </div>
-            ` : `<div class="appt-services">${escapeHtml(a.notes || 'Horario bloqueado manualmente')}</div>`}
+              ${a.status !== 'blocked' ? `
+                <div style="font-size:11.5px;color:#475569;line-height:1.35;">
+                  ${a.items.map(i => `${i.qty > 1 ? i.qty + 'x ' : ''}${escapeHtml(i.name)}`).join(' · ')}
+                </div>
+                <div class="appt-money-row">
+                  <span style="color:#64748b;">Seña: <strong style="color:#15803d;">${formatARS(a.depositAmount)}</strong></span>
+                  <span style="color:#0f172a;font-weight:800;">Cobrar: ${formatARS(balance)}</span>
+                </div>
+              ` : `<div style="font-size:11.5px;color:#64748b;">${escapeHtml(a.notes || 'Horario bloqueado manualmente')}</div>`}
+            </div>
           </div>
         `;
       }).join('')}
@@ -1201,15 +1204,15 @@
 
     return `
       <div class="section-title" style="margin-top:4px;">
-        <span>💅 Servicios y Precios</span>
-        <button class="btn btn-primary btn-sm" data-action="admin-open-modal" data-type="new_service">+ Nuevo</button>
+        <span>Servicios y Precios</span>
+        <button class="btn btn-primary btn-sm" data-action="admin-open-modal" data-type="new_service">${ic('plus', 14)}<span>Nuevo</span></button>
       </div>
-      <p class="section-sub">Cualquier cambio de precio o estado se refleja al instante en la App Cliente.</p>
+      <p class="section-sub">Los cambios se publican al instante en el enlace de tus clientas.</p>
 
       <div class="cat-tabs">
         <button class="cat-tab ${filter === 'all' ? 'active' : ''}" data-action="admin-svc-cat" data-cat="all">Todos (${tenant.services.length})</button>
         ${tenant.categories.map(c => `
-          <button class="cat-tab ${filter === c.id ? 'active' : ''}" data-action="admin-svc-cat" data-cat="${c.id}">${c.icon} ${escapeHtml(c.name)}</button>
+          <button class="cat-tab ${filter === c.id ? 'active' : ''}" data-action="admin-svc-cat" data-cat="${c.id}">${ic(c.icon, 13)}<span>${escapeHtml(c.name)}</span></button>
         `).join('')}
       </div>
 
@@ -1221,13 +1224,13 @@
               ${!s.active ? `<span class="pill pill-danger" style="font-size:10px;">Pausado</span>` : ''}
             </div>
             <div class="service-meta">
-              <span class="service-price">${s.desde ? '<span class="service-desde">desde </span>' : ''}${formatARS(s.price)}</span>
-              <span class="service-dur">⏱ ${formatDuration(s.duration)}</span>
+              <span class="service-price" style="color:#0f172a;">${s.desde ? '<span class="service-desde">desde </span>' : ''}${formatARS(s.price)}</span>
+              <span class="service-dur ic-row">${ic('clock', 12)} ${formatDuration(s.duration)}</span>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <button class="btn btn-soft btn-sm" style="padding:6px 10px;" data-action="admin-open-modal" data-type="edit_service" data-id="${s.id}">✏️</button>
-            <button class="toggle-switch ${s.active ? 'on' : ''}" data-action="admin-toggle-service" data-id="${s.id}" title="Activar/Pausar"></button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="btn btn-outline btn-sm" style="padding:7px 9px;" data-action="admin-open-modal" data-type="edit_service" data-id="${s.id}" title="Editar">${ic('edit', 14)}</button>
+            <button class="toggle-switch ${s.active ? 'on' : ''}" data-action="admin-toggle-service" data-id="${s.id}" title="Activar o pausar"></button>
           </div>
         </div>
       `).join('')}
@@ -1237,14 +1240,14 @@
   function renderAdminRules(tenant) {
     const r = tenant.bookingRules;
     return `
-      <div class="section-title" style="margin-top:4px;"><span>⚙️ Señas y Políticas</span></div>
-      <p class="section-sub">Personalizá tus reglas de reserva. Se actualizan en vivo en el checkout del cliente.</p>
+      <div class="section-title" style="margin-top:4px;"><span>Reglas de Reserva y Seña</span></div>
+      <p class="section-sub">Configurá condiciones de pago, cancelaciones y horarios disponibles.</p>
 
       <div class="card">
         <div class="toggle-row">
           <div>
-            <div style="font-size:13px;font-weight:800;">Exigir seña para reservar</div>
-            <div style="font-size:11px;color:var(--brand-muted);">Sin seña no se bloquea el turno</div>
+            <div style="font-size:13px;font-weight:800;">Exigir seña obligatoria</div>
+            <div style="font-size:11px;color:var(--brand-muted);">Bloquea el turno únicamente con seña</div>
           </div>
           <button class="toggle-switch ${r.depositRequired ? 'on' : ''}" data-action="rule-toggle" data-key="depositRequired"></button>
         </div>
@@ -1271,34 +1274,32 @@
 
         <div class="toggle-row">
           <div>
-            <div style="font-size:13px;font-weight:800;">Permitir reprogramar turnos</div>
-            <div style="font-size:11px;color:var(--brand-muted);">Apagalo en temporada alta (ej. Diciembre)</div>
+            <div style="font-size:13px;font-weight:800;">Permitir reprogramaciones</div>
+            <div style="font-size:11px;color:var(--brand-muted);">Desactivalo en meses de alta demanda</div>
           </div>
           <button class="toggle-switch ${r.allowReschedule ? 'on' : ''}" data-action="rule-toggle" data-key="allowReschedule"></button>
         </div>
 
         <div class="toggle-row">
           <div>
-            <div style="font-size:13px;font-weight:800;">Pedir foto de diseño de referencia</div>
-            <div style="font-size:11px;color:var(--brand-muted);">Permite a la clienta elegir o subir inspo</div>
+            <div style="font-size:13px;font-weight:800;">Solicitar diseño de referencia</div>
+            <div style="font-size:11px;color:var(--brand-muted);">Habilita galería o subida de foto al reservar</div>
           </div>
           <button class="toggle-switch ${r.askReferencePhoto ? 'on' : ''}" data-action="rule-toggle" data-key="askReferencePhoto"></button>
         </div>
 
         <div class="field" style="margin-top:10px;margin-bottom:0;">
-          <label>Aviso destacado (Ej: Agenda Diciembre)</label>
+          <label>Aviso destacado en Políticas</label>
           <textarea rows="2" data-action-change="rule-input" data-key="importantNotice">${escapeHtml(r.importantNotice)}</textarea>
         </div>
       </div>
 
-      <div class="section-title"><span>🕒 Horarios de Atención</span></div>
+      <div class="section-title"><span>Horarios de Atención</span></div>
       <div class="card">
         ${tenant.schedule.days.map(d => `
           <div class="toggle-row">
-            <div style="min-width:84px;">
-              <strong style="font-size:12.5px;">${d.label}</strong>
-            </div>
-            <div style="font-size:11.5px;color:var(--brand-muted);flex:1;">
+            <div style="min-width:86px;"><strong style="font-size:12.5px;">${d.label}</strong></div>
+            <div style="font-size:12px;color:${d.enabled ? '#0f172a' : 'var(--brand-muted)'};flex:1;">
               ${d.enabled ? `${d.start} – ${d.end} hs` : 'Cerrado'}
             </div>
             <button class="toggle-switch ${d.enabled ? 'on' : ''}" data-action="schedule-toggle" data-day="${d.key}"></button>
@@ -1314,31 +1315,34 @@
 
     return `
       <div class="section-title" style="margin-top:4px;">
-        <span>🎨 Mi Marca & Interfaz</span>
-        <span class="pill pill-primary">Multitenant</span>
+        <span>Diseño del Link Público</span>
+        <span class="pill pill-primary">${escapeHtml(tenant.slug)}.turnos.app</span>
       </div>
-      <p class="section-sub">Personalizá colores, tipografía, logo y galería de trabajos. ¡Mirá cómo cambia la App Cliente en vivo!</p>
+      <p class="section-sub">Elegí una plantilla y personalizá cómo ven tus clientas tu página de reservas. Este panel mantiene siempre su diseño limpio.</p>
 
       <div class="card">
-        <div style="font-size:12px;font-weight:800;margin-bottom:8px;">Paletas listas para usar</div>
-        <div class="preset-grid">
-          ${window.THEME_PRESETS.map(p => `
-            <button class="preset-btn ${t.presetId === p.id ? 'active' : ''}" data-action="apply-preset" data-preset="${p.id}">
-              <div class="swatch-pair">
-                <span class="swatch-dot" style="background:${p.primary};"></span>
-                <span class="swatch-dot" style="background:${p.bg};"></span>
-                <span class="swatch-dot" style="background:${p.accent};"></span>
+        <div style="font-size:12.5px;font-weight:800;margin-bottom:9px;color:#0f172a;">Plantillas de estilo para el cliente</div>
+        <div class="template-grid">
+          ${window.CLIENT_TEMPLATES.map(tpl => `
+            <button class="template-card ${t.templateId === tpl.id ? 'active' : ''}" data-action="apply-template" data-tpl="${tpl.id}">
+              <div class="template-preview" style="background:${tpl.bg};">
+                <div class="template-preview-bar" style="background:${tpl.primary};"></div>
+                <div class="template-preview-line" style="background:${tpl.text};"></div>
               </div>
-              <span>${escapeHtml(p.name)}</span>
+              <div class="template-name">
+                <span>${escapeHtml(tpl.name)}</span>
+                ${t.templateId === tpl.id ? `<span style="color:#4f46e5;">${ic('checkCircle', 14)}</span>` : ''}
+              </div>
+              <div class="template-desc">${escapeHtml(tpl.desc)}</div>
             </button>
           `).join('')}
         </div>
 
-        <div style="font-size:12px;font-weight:800;margin-bottom:7px;">Colores a medida</div>
+        <div style="font-size:12px;font-weight:700;color:#475569;margin-bottom:7px;">Ajuste fino de colores del link</div>
         <div class="color-pickers">
           <label class="color-chip-input">
             <input type="color" value="${t.primary}" data-action-input="brand-color" data-key="primary">
-            <span>Principal</span>
+            <span>Acento</span>
           </label>
           <label class="color-chip-input">
             <input type="color" value="${t.bg}" data-action-input="brand-color" data-key="bg">
@@ -1346,82 +1350,64 @@
           </label>
           <label class="color-chip-input">
             <input type="color" value="${t.accent}" data-action-input="brand-color" data-key="accent">
-            <span>Acento</span>
+            <span>Detalle</span>
           </label>
+        </div>
+
+        <div style="display:flex;gap:6px;margin-top:4px;">
+          ${Object.values(window.FONT_PRESETS).map(f => `
+            <button class="btn ${t.fontId === f.id ? 'btn-primary' : 'btn-outline'} btn-sm" style="flex:1;padding:6px;font-size:11px;" data-action="brand-font" data-val="${f.id}">${f.label.split(' ')[0]}</button>
+          `).join('')}
         </div>
       </div>
 
       <div class="card">
-        <div style="font-size:12px;font-weight:800;margin-bottom:8px;">Tipografía y Estilo de Bordes</div>
-        <div style="display:flex;gap:6px;margin-bottom:10px;">
-          ${Object.values(window.FONT_PRESETS).map(f => `
-            <button class="btn ${t.fontId === f.id ? 'btn-primary' : 'btn-outline'} btn-sm" style="flex:1;padding:7px 6px;font-size:11px;" data-action="brand-font" data-val="${f.id}">${f.label.split(' ')[0]}</button>
-          `).join('')}
+        <div class="field">
+          <label>Nombre visible de tu marca</label>
+          <input type="text" data-action-input="tenant-text" data-key="name" value="${escapeHtml(tenant.name)}">
         </div>
-        <div style="display:flex;gap:6px;margin-bottom:10px;">
-          ${Object.values(window.RADIUS_PRESETS).map(rad => `
-            <button class="btn ${t.radiusId === rad.id ? 'btn-primary' : 'btn-outline'} btn-sm" style="flex:1;padding:7px 6px;font-size:11px;" data-action="brand-radius" data-val="${rad.id}">${rad.label}</button>
-          `).join('')}
+        <div class="field">
+          <label>Aviso superior en el link del cliente</label>
+          <input type="text" data-action-input="tenant-text" data-key="announcement" value="${escapeHtml(tenant.announcement)}">
         </div>
 
         ${tenant.assets.logoBanner ? `
           <div class="toggle-row">
             <div>
-              <div style="font-size:12.5px;font-weight:800;">Estilo de cabecera</div>
+              <div style="font-size:12.5px;font-weight:700;">Formato del logo en cabecera</div>
               <div style="font-size:11px;color:var(--brand-muted);">${t.headerStyle === 'banner' ? 'Logo horizontal' : 'Emblema circular'}</div>
             </div>
-            <button class="btn btn-soft btn-sm" data-action="brand-header-toggle">Cambiar</button>
+            <button class="btn btn-outline btn-sm" data-action="brand-header-toggle">Cambiar</button>
           </div>
         ` : ''}
 
         ${tenant.assets.mascot ? `
           <div class="toggle-row">
             <div>
-              <div style="font-size:12.5px;font-weight:800;">Mostrar mascota de bienvenida</div>
-              <div style="font-size:11px;color:var(--brand-muted);">Saludo ilustrado en inicio</div>
+              <div style="font-size:12.5px;font-weight:700;">Tarjeta de bienvenida ilustrada</div>
+              <div style="font-size:11px;color:var(--brand-muted);">Mostrar saludo inicial en el link</div>
             </div>
             <button class="toggle-switch ${t.showMascot ? 'on' : ''}" data-action="brand-toggle" data-key="showMascot"></button>
           </div>
         ` : ''}
-
-        ${(tenant.assets.stickers || []).length > 0 ? `
-          <div class="toggle-row">
-            <div>
-              <div style="font-size:12.5px;font-weight:800;">Stickers decorativos de marca</div>
-              <div style="font-size:11px;color:var(--brand-muted);">Tulipanes, margaritas y vibes</div>
-            </div>
-            <button class="toggle-switch ${t.showStickers ? 'on' : ''}" data-action="brand-toggle" data-key="showStickers"></button>
-          </div>
-        ` : ''}
-      </div>
-
-      <div class="card">
-        <div class="field">
-          <label>Nombre del emprendimiento</label>
-          <input type="text" data-action-input="tenant-text" data-key="name" value="${escapeHtml(tenant.name)}">
-        </div>
-        <div class="field" style="margin-bottom:0;">
-          <label>Banner de anuncio en inicio</label>
-          <input type="text" data-action-input="tenant-text" data-key="announcement" value="${escapeHtml(tenant.announcement)}">
-        </div>
       </div>
 
       <div class="section-title">
-        <span>📸 Galería de Trabajos (${works.length})</span>
-        <button class="btn btn-primary btn-sm" data-action="admin-open-modal" data-type="add_work">+ Subir foto</button>
+        <span>Galería de Trabajos (${works.length})</span>
+        <button class="btn btn-primary btn-sm" data-action="admin-open-modal" data-type="add_work">${ic('upload', 13)}<span>Subir foto</span></button>
       </div>
       <div class="portfolio-grid-admin">
         ${works.map(w => `
           <div class="portfolio-card" style="width:100%;">
-            <div class="portfolio-thumb-wrap" style="height:110px;">
+            <div class="portfolio-thumb-wrap" style="height:104px;">
               ${w.src
                 ? `<img class="portfolio-thumb" src="${w.src}" alt="${escapeHtml(w.title)}">`
-                : `<div class="portfolio-placeholder" style="background:${w.gradient};"><span>${w.emoji || '✨'}</span></div>`}
+                : `<div class="portfolio-placeholder" style="background:${w.gradient};color:#fff;">${ic('image', 24)}</div>`}
               <span class="portfolio-tag">${escapeHtml(w.serviceName)}</span>
             </div>
             <div class="portfolio-meta" style="display:flex;align-items:center;justify-content:space-between;gap:4px;">
               <div class="portfolio-title" style="flex:1;">${escapeHtml(w.title)}</div>
-              <button style="border:none;background:transparent;color:#dc2626;font-size:12px;padding:2px;" title="Eliminar" data-action="delete-work" data-id="${w.id}">🗑</button>
+              <button style="border:none;background:transparent;color:#dc2626;padding:3px;" title="Eliminar" data-action="delete-work" data-id="${w.id}">${ic('trash', 14)}</button>
             </div>
           </div>
         `).join('')}
@@ -1433,8 +1419,8 @@
     const validAppts = tenant.appointments.filter(a => a.status !== 'cancelled' && a.status !== 'blocked');
     const depositsCollected = validAppts.filter(a => a.status === 'confirmed' || a.status === 'completed').reduce((s, a) => s + a.depositAmount, 0);
     const projectedTotal = validAppts.reduce((s, a) => s + a.total, 0);
+    const balanceRemaining = Math.max(0, projectedTotal - depositsCollected);
 
-    // Top services count
     const counts = {};
     validAppts.forEach(a => a.items.forEach(i => {
       if (i.categoryId === tenant.categories[0].id) {
@@ -1445,20 +1431,24 @@
     const maxCount = topArr[0]?.[1] || 1;
 
     return `
-      <div class="section-title" style="margin-top:4px;"><span>💰 Caja & Métricas</span></div>
-      <div class="kpi-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="section-title" style="margin-top:4px;"><span>Resumen de Caja</span></div>
+      <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-val" style="color:#16a34a;">${formatARS(depositsCollected)}</div>
-          <div class="kpi-lbl">Señas confirmadas</div>
+          <div class="kpi-val" style="color:#16a34a;font-size:13.5px;">${formatARS(depositsCollected)}</div>
+          <div class="kpi-lbl">Señas cobradas</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-val" style="color:var(--brand-primary);">${formatARS(projectedTotal)}</div>
-          <div class="kpi-lbl">Facturación agendada</div>
+          <div class="kpi-val" style="color:#0f172a;font-size:13.5px;">${formatARS(balanceRemaining)}</div>
+          <div class="kpi-lbl">Saldo a cobrar</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val" style="color:#4f46e5;font-size:13.5px;">${formatARS(projectedTotal)}</div>
+          <div class="kpi-lbl">Total agendado</div>
         </div>
       </div>
 
       <div class="card">
-        <div style="font-size:13px;font-weight:800;margin-bottom:10px;">Servicios más pedidos</div>
+        <div class="ic-row" style="font-size:13px;font-weight:800;margin-bottom:10px;color:#0f172a;">${ic('trendingUp', 15)}<span>Servicios más solicitados</span></div>
         ${topArr.length === 0 ? `<div style="font-size:12px;color:var(--brand-muted);">Sin datos todavía.</div>` : topArr.map(([name, qty]) => `
           <div class="bar-row">
             <div class="bar-head"><span>${escapeHtml(name)}</span><span>${qty} ${qty === 1 ? 'turno' : 'turnos'}</span></div>
@@ -1467,18 +1457,22 @@
         `).join('')}
       </div>
 
-      <div class="section-title"><span>👩‍🦰 Mis Clientas (${tenant.clients.length})</span></div>
+      <div class="section-title">
+        <span class="ic-row">${ic('users', 16)}<span>Clientas (${tenant.clients.length})</span></span>
+      </div>
       ${tenant.clients.map(c => `
         <div class="card" style="padding:11px 12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-            <strong style="font-size:13.5px;">${escapeHtml(c.name)}</strong>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <strong style="font-size:13.5px;color:#0f172a;">${escapeHtml(c.name)}</strong>
             <span class="pill pill-primary">${escapeHtml(c.tag)}</span>
           </div>
-          <div style="font-size:11.5px;color:var(--brand-muted);margin-bottom:4px;">${escapeHtml(c.ig)} · 📱 ${escapeHtml(c.phone)}</div>
-          <div style="font-size:11.5px;margin-bottom:6px;">📝 ${escapeHtml(c.note)}</div>
-          <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;color:var(--brand-primary);">
-            <span>${c.visits} visitas</span>
-            <span>Total histórico: ${formatARS(c.spent)}</span>
+          <div class="ic-row" style="font-size:11.5px;color:var(--brand-muted);margin-bottom:5px;">
+            ${ic('phone', 12)}<span>${escapeHtml(c.phone)} · ${escapeHtml(c.ig)}</span>
+          </div>
+          <div style="font-size:11.5px;color:#334155;margin-bottom:7px;">${escapeHtml(c.note)}</div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;border-top:1px solid #f1f5f9;padding-top:6px;">
+            <span style="color:#64748b;">${c.visits} visitas</span>
+            <span style="color:#0f172a;">Histórico: ${formatARS(c.spent)}</span>
           </div>
         </div>
       `).join('')}
@@ -1498,7 +1492,7 @@
       const a = tenant.appointments.find(x => x.id === m.id);
       if (!a) return '';
       const dInfo = formatDateLabel(a.date);
-      title = a.status === 'blocked' ? '🔒 Horario Bloqueado' : `Turno #${a.id}`;
+      title = a.status === 'blocked' ? 'Horario Bloqueado' : `Detalle del Turno #${a.id}`;
       body = a.status === 'blocked' ? `
         <div class="card">
           <strong>${dInfo.full} · ${a.time} hs (${formatDuration(a.duration)})</strong>
@@ -1509,34 +1503,34 @@
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <strong style="font-size:15px;">${escapeHtml(a.clientName)}</strong>
             <span class="pill ${a.status === 'confirmed' ? 'pill-success' : a.status === 'pending_deposit' ? 'pill-warning' : 'pill-primary'}">
-              ${a.status === 'confirmed' ? '✅ Confirmado' : a.status === 'pending_deposit' ? '⏳ Seña pendiente' : a.status === 'completed' ? '💖 Completado' : '❌ Cancelado'}
+              ${a.status === 'confirmed' ? 'Confirmado' : a.status === 'pending_deposit' ? 'Seña pendiente' : a.status === 'completed' ? 'Completado' : 'Cancelado'}
             </span>
           </div>
-          <div style="font-size:12px;color:var(--brand-muted);margin-bottom:8px;">
-            📅 ${dInfo.full} · ${a.time} hs (${formatDuration(a.duration)})<br>
-            📱 ${escapeHtml(a.clientPhone)} ${a.clientIg ? '· ' + escapeHtml(a.clientIg) : ''}
+          <div style="font-size:12px;color:var(--brand-muted);margin-bottom:10px;display:flex;flex-direction:column;gap:4px;">
+            <span class="ic-row">${ic('calendar', 13)} ${dInfo.full} · ${a.time} hs (${formatDuration(a.duration)})</span>
+            <span class="ic-row">${ic('phone', 13)} ${escapeHtml(a.clientPhone)} ${a.clientIg ? '· ' + escapeHtml(a.clientIg) : ''}</span>
           </div>
-          <div style="border-top:1px dashed var(--brand-border);padding-top:8px;">
+          <div style="border-top:1px solid #f1f5f9;padding-top:8px;">
             ${a.items.map(i => `<div class="summary-row"><span>${i.qty > 1 ? i.qty + 'x ' : ''}${escapeHtml(i.name)}</span><strong>${formatARS(i.price * i.qty)}</strong></div>`).join('')}
             <div class="summary-row total"><span>Total</span><span>${formatARS(a.total)}</span></div>
             <div class="summary-row" style="color:#16a34a;"><span>Seña (${escapeHtml(a.paymentMethod)})</span><strong>− ${formatARS(a.depositAmount)}</strong></div>
-            <div class="summary-row" style="color:var(--brand-primary);font-weight:800;"><span>Saldo a cobrar</span><span>${formatARS(Math.max(0, a.total - a.depositAmount))}</span></div>
+            <div class="summary-row" style="color:#0f172a;font-weight:800;"><span>Saldo a cobrar</span><span>${formatARS(Math.max(0, a.total - a.depositAmount))}</span></div>
           </div>
         </div>
 
         ${a.designRef || a.notes ? `
           <div class="card">
-            ${a.designRef ? `<div style="font-size:12px;margin-bottom:4px;">🎨 <strong>Diseño ref:</strong> ${escapeHtml(a.designRef)}</div>` : ''}
-            ${a.notes ? `<div style="font-size:12px;">📝 <strong>Nota:</strong> ${escapeHtml(a.notes)}</div>` : ''}
+            ${a.designRef ? `<div class="ic-row" style="font-size:12px;margin-bottom:4px;">${ic('image', 13)}<span><strong>Referencia:</strong> ${escapeHtml(a.designRef)}</span></div>` : ''}
+            ${a.notes ? `<div style="font-size:12px;color:#475569;"><strong>Nota:</strong> ${escapeHtml(a.notes)}</div>` : ''}
           </div>
         ` : ''}
 
-        <div class="card" style="background:var(--brand-primary-soft);border-color:var(--brand-primary);">
-          <div style="font-size:11.5px;font-weight:800;color:var(--brand-primary);margin-bottom:3px;">🧾 Comprobante de Seña</div>
-          <div style="font-size:12px;">${escapeHtml(a.receiptNote || 'Sin comprobante adjunto')}</div>
+        <div class="card" style="background:#f8fafc;border-color:#cbd5e1;">
+          <div class="ic-row" style="font-size:11.5px;font-weight:800;color:#334155;margin-bottom:3px;">${ic('receipt', 13)}<span>Comprobante de Seña</span></div>
+          <div style="font-size:12px;color:#475569;">${escapeHtml(a.receiptNote || 'Sin comprobante adjunto')}</div>
         </div>
 
-        <button class="btn btn-soft btn-block btn-sm" data-action="toast" data-msg="📲 Recordatorio enviado a ${escapeHtml(a.clientName)} por WhatsApp">💬 Enviar recordatorio por WhatsApp</button>
+        <button class="btn btn-soft btn-block btn-sm" data-action="toast" data-msg="Recordatorio enviado por WhatsApp a ${escapeHtml(a.clientName)}">${ic('messageCircle', 14)}<span>Enviar recordatorio por WhatsApp</span></button>
       `;
 
       if (a.status === 'blocked') {
@@ -1544,12 +1538,12 @@
       } else if (a.status === 'pending_deposit') {
         footer = `
           <button class="btn btn-danger-soft" data-action="admin-appt-status" data-id="${a.id}" data-status="cancelled">Rechazar</button>
-          <button class="btn btn-success" style="flex:1;" data-action="admin-appt-status" data-id="${a.id}" data-status="confirmed">✅ Aprobar seña</button>
+          <button class="btn btn-success" style="flex:1;" data-action="admin-appt-status" data-id="${a.id}" data-status="confirmed">${ic('check', 14)}<span>Aprobar seña</span></button>
         `;
       } else if (a.status === 'confirmed') {
         footer = `
           <button class="btn btn-danger-soft" data-action="admin-appt-status" data-id="${a.id}" data-status="cancelled">Cancelar</button>
-          <button class="btn btn-primary" style="flex:1;" data-action="admin-appt-status" data-id="${a.id}" data-status="completed">💖 Marcar completado</button>
+          <button class="btn btn-primary" style="flex:1;" data-action="admin-appt-status" data-id="${a.id}" data-status="completed">${ic('checkCircle', 14)}<span>Marcar completado</span></button>
         `;
       } else {
         footer = `<button class="btn btn-outline btn-block" data-action="admin-close-modal">Cerrar</button>`;
@@ -1559,13 +1553,13 @@
       const s = isNew
         ? { id: '', categoryId: tenant.categories[0].id, name: '', price: 15000, desde: false, duration: 60, desc: '' }
         : tenant.services.find(x => x.id === m.id);
-      title = isNew ? '+ Nuevo Servicio' : '✏️ Editar Servicio';
+      title = isNew ? 'Nuevo Servicio' : 'Editar Servicio';
       body = `
         <form id="svc-form">
           <div class="field">
             <label>Categoría</label>
             <select name="categoryId">
-              ${tenant.categories.map(c => `<option value="${c.id}" ${s.categoryId === c.id ? 'selected' : ''}>${c.icon} ${escapeHtml(c.name)}</option>`).join('')}
+              ${tenant.categories.map(c => `<option value="${c.id}" ${s.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}
             </select>
           </div>
           <div class="field">
@@ -1598,7 +1592,7 @@
       `;
     } else if (m.type === 'new_manual_appt') {
       const mainServices = tenant.services.filter(s => s.categoryId === tenant.categories[0].id && s.active);
-      title = '+ Agendar Turno Manual';
+      title = 'Agendar Turno Manual';
       body = `
         <form id="manual-appt-form">
           <div class="field"><label>Clienta *</label><input name="clientName" required placeholder="Nombre y apellido"></div>
@@ -1620,7 +1614,7 @@
         <button class="btn btn-primary" style="flex:1;" data-action="save-manual-appt">Agendar confirmado</button>
       `;
     } else if (m.type === 'block_slot') {
-      title = '🔒 Bloquear Horario';
+      title = 'Bloquear Horario';
       body = `
         <form id="block-form">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -1637,7 +1631,7 @@
       `;
     } else if (m.type === 'add_work') {
       const mainServices = tenant.services.filter(s => s.categoryId === tenant.categories[0].id);
-      title = '📸 Agregar Trabajo a Galería';
+      title = 'Agregar Trabajo a Galería';
       body = `
         <form id="work-form">
           <div class="field"><label>Título del diseño *</label><input name="title" required placeholder="Ej: Stiletto Nude + Brillos"></div>
@@ -1649,26 +1643,26 @@
           </div>
           <div class="field"><label>Detalle de extras / precio aprox.</label><input name="extraSummary" placeholder="Ej: French + 6 strass · $25.600 aprox."></div>
           <div class="field">
-            <label>Foto del trabajo (subí desde tu galería)</label>
+            <label>Foto del trabajo</label>
             <input type="file" accept="image/*" id="new-work-file">
           </div>
         </form>
       `;
       footer = `
         <button class="btn btn-outline" data-action="admin-close-modal">Cancelar</button>
-        <button class="btn btn-primary" style="flex:1;" data-action="save-work">Publicar en App Cliente</button>
+        <button class="btn btn-primary" style="flex:1;" data-action="save-work">Publicar en Link Cliente</button>
       `;
     } else if (m.type === 'qr_share') {
       const link = `https://${tenant.slug}.turnos.app`;
-      title = '🔗 Compartí tu Agenda';
+      title = 'Compartir Enlace de Reservas';
       body = `
         <div style="text-align:center;padding:8px 0;">
-          <div style="width:140px;height:140px;margin:0 auto 12px;border-radius:18px;background:#fff;padding:12px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;border:2px solid var(--brand-primary);">
-            ${Array.from({ length: 25 }).map((_, i) => `<div style="border-radius:3px;background:${[0,1,2,4,5,9,10,12,14,15,18,20,21,22,24].includes(i) ? '#1c1520' : '#f4e8f0'};"></div>`).join('')}
+          <div style="width:140px;height:140px;margin:0 auto 12px;border-radius:16px;background:#fff;padding:12px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;border:1.5px solid #cbd5e1;">
+            ${Array.from({ length: 25 }).map((_, i) => `<div style="border-radius:3px;background:${[0,1,2,4,5,9,10,12,14,15,18,20,21,22,24].includes(i) ? '#0f172a' : '#eef2ff'};"></div>`).join('')}
           </div>
-          <div style="font-weight:800;font-size:15px;margin-bottom:4px;">${escapeHtml(link)}</div>
-          <p style="font-size:12px;color:var(--brand-muted);margin:0 0 12px;">Pegalo en tu bio de Instagram o envialo por WhatsApp para que tus clientas reserven solas 24/7.</p>
-          <button class="btn btn-primary btn-block" data-action="copy-alias" data-alias="${escapeHtml(link)}">📋 Copiar enlace de mi agenda</button>
+          <div style="font-weight:800;font-size:15px;margin-bottom:4px;color:#0f172a;">${escapeHtml(link)}</div>
+          <p style="font-size:12px;color:var(--brand-muted);margin:0 0 12px;">Colocalo en tu bio de Instagram o envialo por WhatsApp para que tus clientas reserven online.</p>
+          <button class="btn btn-primary btn-block" data-action="copy-alias" data-alias="${escapeHtml(link)}">${ic('copy', 14)}<span>Copiar enlace</span></button>
         </div>
       `;
       footer = `<button class="btn btn-outline btn-block" data-action="admin-close-modal">Cerrar</button>`;
@@ -1679,7 +1673,7 @@
         <div class="sheet-panel" onclick="event.stopPropagation()">
           <div class="sheet-header">
             <h3>${title}</h3>
-            <button class="icon-close-btn" data-action="admin-close-modal">✕</button>
+            <button class="icon-close-btn" data-action="admin-close-modal">${ic('x', 15)}</button>
           </div>
           <div class="sheet-body">${body}</div>
           <div class="sheet-footer">${footer}</div>
@@ -1706,14 +1700,14 @@
       state.client.cart = { mainServiceId: null, retiroId: null, extras: {}, selectedWork: null };
       state.client.wizard.open = false;
       state.admin.modal = null;
-      showToast('↺ Demo restaurada a los valores iniciales');
+      showToast('Demo restaurada a los valores iniciales');
       render();
     } else if (action === 'toast') {
-      showToast(target.dataset.msg || 'Listo ✨');
+      showToast(target.dataset.msg || 'Acción ejecutada');
     } else if (action === 'copy-alias') {
       const val = target.dataset.alias;
       if (navigator.clipboard) navigator.clipboard.writeText(val).catch(() => {});
-      showToast(`📋 Copiado: ${val}`);
+      showToast(`Copiado: ${val}`);
     }
 
     // ---- Client Navigation & Services ----
@@ -1740,7 +1734,7 @@
         state.client.wizard.designRef = work.title;
         state.client.lightboxWorkId = null;
         state.client.tab = 'home';
-        showToast(`✨ Estilo "${work.title}" agregado a tu reserva`);
+        showToast(`Estilo "${work.title}" agregado a tu reserva`);
         render();
       }
     } else if (action === 'clear-work-ref') {
@@ -1799,14 +1793,14 @@
       render();
     } else if (action === 'wiz-receipt') {
       state.client.wizard.receiptUploaded = true;
-      showToast('📎 Comprobante adjuntado correctamente');
+      showToast('Comprobante adjuntado correctamente');
       render();
     } else if (action === 'wiz-prev') {
       state.client.wizard.step = Math.max(1, state.client.wizard.step - 1);
       render();
     } else if (action === 'wiz-next') {
       if (state.client.wizard.step === 2 && (!state.client.wizard.name.trim() || !state.client.wizard.phone.trim())) {
-        showToast('⚠️ Completá tu nombre y WhatsApp para seguir');
+        showToast('Completá tu nombre y WhatsApp para continuar');
         return;
       }
       state.client.wizard.step = Math.min(4, state.client.wizard.step + 1);
@@ -1841,7 +1835,7 @@
       w.step = 5;
       state.client.cart = { mainServiceId: null, retiroId: null, extras: {}, selectedWork: null };
       saveTenants();
-      showToast(isInstant ? '🎉 ¡Turno confirmado en la agenda!' : '⏳ Turno enviado · Apareció en el Panel Admin');
+      showToast(isInstant ? 'Turno confirmado en la agenda' : 'Turno enviado al Panel Admin');
       render();
     } else if (action === 'wiz-finish') {
       state.client.wizard.open = false;
@@ -1864,7 +1858,7 @@
       if (svc) {
         svc.active = !svc.active;
         saveTenants();
-        showToast(svc.active ? `✅ "${svc.name}" visible para clientas` : `⏸ "${svc.name}" pausado`);
+        showToast(svc.active ? `"${svc.name}" visible para clientas` : `"${svc.name}" pausado`);
         render();
       }
     } else if (action === 'admin-open-modal') {
@@ -1880,9 +1874,9 @@
         saveTenants();
         state.admin.modal = null;
         const msgs = {
-          confirmed: '✅ Seña aprobada · Turno confirmado en vivo',
-          completed: '💖 Turno marcado como completado',
-          cancelled: '❌ Turno cancelado y horario liberado'
+          confirmed: 'Seña aprobada · Turno confirmado en vivo',
+          completed: 'Turno marcado como completado',
+          cancelled: 'Turno cancelado y horario liberado'
         };
         showToast(msgs[a.status] || 'Estado actualizado');
         render();
@@ -1894,7 +1888,7 @@
       const name = (fd.get('name') || '').toString().trim();
       const price = Number(fd.get('price')) || 0;
       const duration = Number(fd.get('duration')) || 30;
-      if (!name) { showToast('⚠️ Ingresá un nombre'); return; }
+      if (!name) { showToast('Ingresá un nombre'); return; }
       const id = target.dataset.id;
       if (id) {
         const s = tenant.services.find(x => x.id === id);
@@ -1921,14 +1915,14 @@
       }
       saveTenants();
       state.admin.modal = null;
-      showToast('✨ Precio actualizado en la App Cliente');
+      showToast('Precio actualizado en el link del cliente');
       render();
     } else if (action === 'save-manual-appt') {
       const form = document.getElementById('manual-appt-form');
       if (!form) return;
       const fd = new FormData(form);
       const clientName = (fd.get('clientName') || '').toString().trim();
-      if (!clientName) { showToast('⚠️ Ingresá el nombre de la clienta'); return; }
+      if (!clientName) { showToast('Ingresá el nombre de la clienta'); return; }
       const svc = tenant.services.find(s => s.id === fd.get('serviceId')) || tenant.services[0];
       const date = fd.get('date') || state.admin.selectedDate;
       tenant.appointments.push({
@@ -1952,7 +1946,7 @@
       state.admin.selectedDate = date;
       saveTenants();
       state.admin.modal = null;
-      showToast('✅ Turno agendado en la agenda');
+      showToast('Turno agendado en la agenda');
       render();
     } else if (action === 'save-block-slot') {
       const form = document.getElementById('block-form');
@@ -1980,14 +1974,14 @@
       state.admin.selectedDate = date;
       saveTenants();
       state.admin.modal = null;
-      showToast('🔒 Horario bloqueado (oculto para clientas)');
+      showToast('Horario bloqueado');
       render();
     } else if (action === 'save-work') {
       const form = document.getElementById('work-form');
       if (!form) return;
       const fd = new FormData(form);
       const title = (fd.get('title') || '').toString().trim();
-      if (!title) { showToast('⚠️ Ingresá un título'); return; }
+      if (!title) { showToast('Ingresá un título'); return; }
       const svc = tenant.services.find(s => s.id === fd.get('serviceId')) || tenant.services[0];
       const fileInput = document.getElementById('new-work-file');
       const finishSave = (imgDataUrl) => {
@@ -2001,12 +1995,11 @@
           priceHint: formatARS(svc.price),
           src: imgDataUrl || '',
           gradient: `linear-gradient(135deg, ${tenant.theme.primarySoft}, ${tenant.theme.primary})`,
-          emoji: '💅',
           featured: true
         });
         saveTenants();
         state.admin.modal = null;
-        showToast('📸 Foto publicada en la App Cliente');
+        showToast('Trabajo publicado en la galería del cliente');
         render();
       };
 
@@ -2020,7 +2013,7 @@
     } else if (action === 'delete-work') {
       tenant.portfolio = (tenant.portfolio || []).filter(w => w.id !== target.dataset.id);
       saveTenants();
-      showToast('🗑 Trabajo eliminado de la galería');
+      showToast('Trabajo eliminado de la galería');
       render();
     }
 
@@ -2029,7 +2022,7 @@
       const k = target.dataset.key;
       tenant.bookingRules[k] = !tenant.bookingRules[k];
       saveTenants();
-      showToast('⚙️ Regla actualizada en la App Cliente');
+      showToast('Regla actualizada en el link del cliente');
       render();
     } else if (action === 'schedule-toggle') {
       const dayKey = Number(target.dataset.day);
@@ -2041,32 +2034,30 @@
       }
     }
 
-    // ---- Brand Customization (Live Multitenant Engine) ----
-    else if (action === 'apply-preset') {
-      const p = window.THEME_PRESETS.find(x => x.id === target.dataset.preset);
-      if (p) {
+    // ---- Client Link Templates & Brand Customization ----
+    else if (action === 'apply-template') {
+      const tpl = window.CLIENT_TEMPLATES.find(x => x.id === target.dataset.tpl);
+      if (tpl) {
         Object.assign(tenant.theme, {
-          presetId: p.id,
-          primary: p.primary,
-          primaryDark: p.primaryDark,
-          primarySoft: p.primarySoft,
-          bg: p.bg,
-          surface: p.surface,
-          accent: p.accent,
-          text: p.text,
-          muted: p.muted,
-          isDark: p.isDark
+          templateId: tpl.id,
+          primary: tpl.primary,
+          primaryDark: tpl.primaryDark,
+          primarySoft: tpl.primarySoft,
+          bg: tpl.bg,
+          surface: tpl.surface,
+          accent: tpl.accent,
+          text: tpl.text,
+          muted: tpl.muted,
+          isDark: tpl.isDark,
+          fontId: tpl.fontId,
+          radiusId: tpl.radiusId
         });
         saveTenants();
-        showToast(`🎨 Tema "${p.name}" aplicado`);
+        showToast(`Plantilla "${tpl.name}" aplicada al link del cliente`);
         render();
       }
     } else if (action === 'brand-font') {
       tenant.theme.fontId = target.dataset.val;
-      saveTenants();
-      render();
-    } else if (action === 'brand-radius') {
-      tenant.theme.radiusId = target.dataset.val;
       saveTenants();
       render();
     } else if (action === 'brand-header-toggle') {
@@ -2081,7 +2072,6 @@
     }
   });
 
-  // Inputs & Change events
   document.addEventListener('change', (e) => {
     const el = e.target;
     const tenant = getTenant();
@@ -2096,7 +2086,7 @@
       state.client.lightboxWorkId = null;
       state.admin.modal = null;
       state.admin.serviceCatFilter = 'all';
-      showToast(`🏪 Cambiado a ${nextTenant.name}`);
+      showToast(`Cambiado a ${nextTenant.name}`);
       render();
       return;
     }
@@ -2109,7 +2099,7 @@
       reader.onload = ev => {
         state.client.wizard.customDesignImg = ev.target.result;
         state.client.wizard.designRef = 'Foto propia adjunta';
-        showToast('📸 Foto de referencia cargada');
+        showToast('Foto de referencia cargada');
         render();
       };
       reader.readAsDataURL(el.files[0]);
@@ -2132,24 +2122,23 @@
     else if (el.dataset.actionInput === 'brand-color') {
       const k = el.dataset.key;
       tenant.theme[k] = el.value;
-      tenant.theme.presetId = 'custom';
+      tenant.theme.templateId = 'custom';
       if (k === 'bg') {
         tenant.theme.isDark = !isLightColor(el.value);
         tenant.theme.surface = tenant.theme.isDark ? '#1D1922' : '#FFFFFF';
-        tenant.theme.text = tenant.theme.isDark ? '#FAF5EE' : '#2B1623';
-        tenant.theme.muted = tenant.theme.isDark ? '#ACA2B5' : '#7E5E70';
+        tenant.theme.text = tenant.theme.isDark ? '#FAF5EE' : '#26141F';
+        tenant.theme.muted = tenant.theme.isDark ? '#ACA2B5' : '#7B5E6F';
       }
       saveTenants();
-      // Live update CSS variables without losing color picker focus
-      const vars = getThemeVars(tenant);
-      document.querySelectorAll('.phone-screen').forEach(scr => {
+      // Only update the Client phone screen — Admin stays neutral SaaS!
+      const vars = getClientThemeVars(tenant);
+      document.querySelectorAll('.phone-screen:not(.admin-saas)').forEach(scr => {
         scr.setAttribute('style', vars);
         scr.classList.toggle('is-dark', !!tenant.theme.isDark);
       });
     } else if (el.dataset.actionInput === 'tenant-text') {
       tenant[el.dataset.key] = el.value;
       saveTenants();
-      // Keep focus on input while updating the other phone in split view
       if (state.viewMode === 'split') {
         const clientScr = document.querySelector('[data-scroll-id="client-scroll"]');
         if (clientScr) {
@@ -2160,6 +2149,5 @@
     }
   });
 
-  // Initial render
   render();
 })();

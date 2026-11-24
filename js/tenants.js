@@ -1,59 +1,60 @@
 /**
- * Motor de configuración Multitenant + Datos Iniciales
- * Cada tenant define su identidad visual, paleta, tipografía, assets, servicios,
- * reglas de seña, horarios, políticas y turnos.
+ * Motor de configuración Multitenant + Plantillas de Estilo para Link del Cliente
+ * Cada tenant define su plantilla visual, acento, assets, servicios,
+ * reglas de seña, horarios, políticas, galería y turnos.
  */
 
 window.FONT_PRESETS = {
   glam: {
     id: 'glam',
-    label: 'Glam & Cute',
-    desc: 'Redondeada y expresiva',
+    label: 'Moderna Glam',
     display: "'Poppins', sans-serif",
-    body: "'Plus Jakarta Sans', sans-serif",
-    script: "'Pacifico', cursive"
+    body: "'Plus Jakarta Sans', sans-serif"
   },
   editorial: {
     id: 'editorial',
     label: 'Editorial Spa',
-    desc: 'Elegante con serifa',
     display: "'Playfair Display', Georgia, serif",
-    body: "'Plus Jakarta Sans', sans-serif",
-    script: "'Playfair Display', Georgia, serif"
+    body: "'Plus Jakarta Sans', sans-serif"
   },
   minimal: {
     id: 'minimal',
-    label: 'Moderna Minimal',
-    desc: 'Limpia y geométrica',
+    label: 'Minimal Pro',
     display: "'Plus Jakarta Sans', sans-serif",
-    body: "'Plus Jakarta Sans', sans-serif",
-    script: "'Plus Jakarta Sans', sans-serif"
+    body: "'Plus Jakarta Sans', sans-serif"
   }
 };
 
 window.RADIUS_PRESETS = {
-  cute: { id: 'cute', label: 'Redondeado', card: '22px', btn: '999px', chip: '999px', input: '16px' },
-  soft: { id: 'soft', label: 'Suave', card: '14px', btn: '12px', chip: '10px', input: '12px' },
-  sharp: { id: 'sharp', label: 'Minimal', card: '6px', btn: '6px', chip: '4px', input: '6px' }
+  cute: { id: 'cute', label: 'Suave', card: '20px', btn: '999px', chip: '999px', input: '14px' },
+  soft: { id: 'soft', label: 'Clásico', card: '14px', btn: '10px', chip: '8px', input: '10px' },
+  sharp: { id: 'sharp', label: 'Recto', card: '6px', btn: '6px', chip: '4px', input: '6px' }
 };
 
-window.THEME_PRESETS = [
+/**
+ * Plantillas listas para el link público del cliente (selector en Panel Emprendimiento)
+ */
+window.CLIENT_TEMPLATES = [
   {
-    id: 'brillo-pink',
-    name: 'Brillo Rosa Glam',
+    id: 'glam-rose',
+    name: 'Glam Studio',
+    desc: 'Luminoso, expresivo y femenino',
     primary: '#E91E8C',
     primaryDark: '#C21472',
     primarySoft: '#FFE6F2',
-    bg: '#FFF6FA',
+    bg: '#FFF7FB',
     surface: '#FFFFFF',
-    accent: '#E3B23C',
-    text: '#2B1623',
-    muted: '#7E5E70',
-    isDark: false
+    accent: '#D9A438',
+    text: '#26141F',
+    muted: '#7B5E6F',
+    isDark: false,
+    fontId: 'glam',
+    radiusId: 'cute'
   },
   {
-    id: 'aura-terracota',
-    name: 'Nude & Terracota',
+    id: 'editorial-spa',
+    name: 'Editorial Spa',
+    desc: 'Cálido, serifa elegante y minimal',
     primary: '#B85D43',
     primaryDark: '#92442E',
     primarySoft: '#F5E5DE',
@@ -62,54 +63,42 @@ window.THEME_PRESETS = [
     accent: '#7D8E79',
     text: '#2D2420',
     muted: '#7B6B63',
-    isDark: false
+    isDark: false,
+    fontId: 'editorial',
+    radiusId: 'soft'
   },
   {
-    id: 'lavanda-soft',
-    name: 'Lavanda Soft',
-    primary: '#7C4DFF',
-    primaryDark: '#5E35D8',
-    primarySoft: '#EFE8FF',
-    bg: '#F8F6FF',
+    id: 'soft-boutique',
+    name: 'Soft Boutique',
+    desc: 'Limpio, fresco y equilibrado',
+    primary: '#6D4AFF',
+    primaryDark: '#5232D9',
+    primarySoft: '#EFEAFF',
+    bg: '#F8F7FC',
     surface: '#FFFFFF',
-    accent: '#FF70A6',
-    text: '#231942',
-    muted: '#6E638D',
-    isDark: false
+    accent: '#14B8A6',
+    text: '#1E1B2E',
+    muted: '#6B6785',
+    isDark: false,
+    fontId: 'minimal',
+    radiusId: 'soft'
   },
   {
-    id: 'menta-fresh',
-    name: 'Menta & Salvia',
-    primary: '#1E8E7E',
-    primaryDark: '#146E61',
-    primarySoft: '#DFF5F0',
-    bg: '#F4FBF9',
-    surface: '#FFFFFF',
-    accent: '#E9A84C',
-    text: '#152E2A',
-    muted: '#597A74',
-    isDark: false
-  },
-  {
-    id: 'noir-gold',
-    name: 'Noir & Gold',
+    id: 'noir-luxe',
+    name: 'Noir Luxe',
+    desc: 'Oscuro sofisticado con acento oro',
     primary: '#D4AF37',
     primaryDark: '#B38E1D',
     primarySoft: '#2E281B',
     bg: '#121015',
     surface: '#1D1922',
-    accent: '#F075B6',
+    accent: '#E987B5',
     text: '#FAF5EE',
     muted: '#ACA2B5',
-    isDark: true
+    isDark: true,
+    fontId: 'minimal',
+    radiusId: 'sharp'
   }
-];
-
-window.SAMPLE_NAIL_DESIGNS = [
-  { id: 'd1', name: 'French Rosa Glitter', emoji: '💅', gradient: 'linear-gradient(135deg, #ffd1e6, #ff82be)' },
-  { id: 'd2', name: 'Aurora Pearl + Strass', emoji: '✨', gradient: 'linear-gradient(135deg, #f6e7ff, #c5e8ff)' },
-  { id: 'd3', name: 'Milky Nude 3D', emoji: '🤍', gradient: 'linear-gradient(135deg, #fff4eb, #f3d6c4)' },
-  { id: 'd4', name: 'Cherry Red Glam', emoji: '🍒', gradient: 'linear-gradient(135deg, #ff6b8b, #b80f3a)' }
 ];
 
 function getRelativeDateISO(offsetDays) {
@@ -137,35 +126,28 @@ window.INITIAL_TENANTS = {
     address: 'Palermo · CABA (dirección exacta al confirmar)',
     rating: '4.9',
     reviewsCount: 148,
-    announcement: '✨ Agenda de Diciembre abierta · ¡Reservá con tiempo!',
+    announcement: 'Agenda de Diciembre abierta · Reservas únicamente con seña',
     theme: {
-      presetId: 'brillo-pink',
+      templateId: 'glam-rose',
       primary: '#E91E8C',
       primaryDark: '#C21472',
       primarySoft: '#FFE6F2',
-      bg: '#FFF6FA',
+      bg: '#FFF7FB',
       surface: '#FFFFFF',
-      accent: '#E3B23C',
-      text: '#2B1623',
-      muted: '#7E5E70',
+      accent: '#D9A438',
+      text: '#26141F',
+      muted: '#7B5E6F',
       isDark: false,
       fontId: 'glam',
       radiusId: 'cute',
       headerStyle: 'banner', // 'banner' | 'circular'
-      showMascot: true,
-      showStickers: true
+      showMascot: true
     },
     assets: {
       logoCircular: 'assets/brillo-de-luna/logo-circular.png',
       logoBanner: 'assets/brillo-de-luna/logo-banner.png',
       mascot: 'assets/brillo-de-luna/mascot-agus.png',
-      stickers: [
-        { id: 'tulips', label: 'Tulipanes', src: 'assets/brillo-de-luna/sticker-tulips.png' },
-        { id: 'daisies', label: 'Margaritas', src: 'assets/brillo-de-luna/sticker-daisies.png' },
-        { id: 'cherub', label: 'Angelito Rosa', src: 'assets/brillo-de-luna/sticker-cherub.png' },
-        { id: 'star', label: 'Estrella Glam', src: 'assets/brillo-de-luna/sticker-star.png' },
-        { id: 'kitty', label: 'Kitty Pink', src: 'assets/brillo-de-luna/sticker-kitty.png' }
-      ]
+      monogram: 'BL'
     },
     portfolio: [
       {
@@ -177,7 +159,6 @@ window.INITIAL_TENANTS = {
         priceHint: '$28.400 aprox.',
         src: 'assets/brillo-de-luna/work-1.jpg',
         gradient: 'linear-gradient(135deg, #ffd1e6, #ff82be)',
-        emoji: '💅',
         featured: true
       },
       {
@@ -189,7 +170,6 @@ window.INITIAL_TENANTS = {
         priceHint: '$22.000 aprox.',
         src: 'assets/brillo-de-luna/work-2.jpg',
         gradient: 'linear-gradient(135deg, #fff4eb, #f3d6c4)',
-        emoji: '🤍',
         featured: true
       },
       {
@@ -201,7 +181,6 @@ window.INITIAL_TENANTS = {
         priceHint: '$28.000 aprox.',
         src: 'assets/brillo-de-luna/work-3.jpg',
         gradient: 'linear-gradient(135deg, #ffe0f0, #f5b3d8)',
-        emoji: '🎀',
         featured: true
       },
       {
@@ -213,40 +192,36 @@ window.INITIAL_TENANTS = {
         priceHint: '$20.000 aprox.',
         src: 'assets/brillo-de-luna/work-4.jpg',
         gradient: 'linear-gradient(135deg, #ff6b8b, #e91e8c)',
-        emoji: '🍒',
         featured: true
       }
     ],
     categories: [
-      { id: 'servicios', name: 'Servicios', icon: '✨', mode: 'single', required: true, hint: 'Elegí tu servicio principal' },
-      { id: 'extras', name: 'Extras', icon: '💎', mode: 'multi', required: false, hint: 'Sumá diseños, strass o joyería' },
-      { id: 'retiros', name: 'Retiros', icon: '🧴', mode: 'single-optional', required: false, hint: '¿Traés producto para retirar?' }
+      { id: 'servicios', name: 'Servicios', icon: 'sparkles', mode: 'single', required: true, hint: 'Elegí tu servicio principal' },
+      { id: 'extras', name: 'Extras', icon: 'gem', mode: 'multi', required: false, hint: 'Sumá diseños, strass o joyería' },
+      { id: 'retiros', name: 'Retiros', icon: 'droplet', mode: 'single-optional', required: false, hint: 'Indicá si traés producto para retirar' }
     ],
     services: [
-      // LISTA DE PRECIOS ✨
       { id: 's1', categoryId: 'servicios', name: 'Manicura Rusa', price: 8000, desde: false, duration: 45, active: true, countable: false, desc: 'Limpieza profunda de cutículas, limado prolijo e hidratación.' },
       { id: 's2', categoryId: 'servicios', name: 'Semipermanente', price: 18000, desde: true, duration: 60, active: true, countable: false, desc: 'Esmaltado en gel de larga duración con brillo espejo.' },
       { id: 's3', categoryId: 'servicios', name: 'Kapping', price: 21000, desde: true, duration: 75, active: true, countable: false, desc: 'Baño nivelador de gel o acrílico para fortalecer tu uña natural.' },
-      { id: 's4', categoryId: 'servicios', name: 'Soft Gel', price: 23000, desde: true, duration: 90, active: true, countable: false, desc: 'Extensión completa de uñas livianas, resistentes y súper prolijas.' },
-      { id: 's5', categoryId: 'servicios', name: 'Soft Gel Híbrido', price: 25000, desde: true, duration: 105, active: true, countable: false, desc: 'Técnica combinada para máxima durabilidad y estructura perfecta.' },
+      { id: 's4', categoryId: 'servicios', name: 'Soft Gel', price: 23000, desde: true, duration: 90, active: true, countable: false, desc: 'Extensión completa de uñas livianas, resistentes y prolijas.' },
+      { id: 's5', categoryId: 'servicios', name: 'Soft Gel Híbrido', price: 25000, desde: true, duration: 105, active: true, countable: false, desc: 'Técnica combinada para máxima durabilidad y estructura.' },
       { id: 's6', categoryId: 'servicios', name: 'Servis', price: 20000, desde: true, duration: 75, active: true, countable: false, desc: 'Mantenimiento de crecimiento y renovación de color.' },
       { id: 's7', categoryId: 'servicios', name: 'Press On Nails', price: 15000, desde: true, duration: 30, active: true, countable: false, desc: 'Set reutilizable a medida con diseño personalizado.' },
 
-      // EXTRAS ✨
-      { id: 'e1', categoryId: 'extras', name: 'Diseño por uña', price: 500, desde: true, duration: 5, active: true, countable: true, unit: 'uña', desc: 'Nail art a mano alzada, stickers, aurora o efectos.' },
+      { id: 'e1', categoryId: 'extras', name: 'Diseño por uña', price: 500, desde: true, duration: 5, active: true, countable: true, unit: 'uña', desc: 'Nail art a mano alzada, aurora o efectos.' },
       { id: 'e2', categoryId: 'extras', name: 'Diseños 3D', price: 1000, desde: false, duration: 10, active: true, countable: true, unit: 'uña', desc: 'Relieves 3D, moños, gotas o texturas esculpidas.' },
       { id: 'e3', categoryId: 'extras', name: 'Strass', price: 100, desde: false, duration: 2, active: true, countable: true, unit: 'c/u', desc: 'Cristales brillantes aplicados con gel fijador.' },
       { id: 'e4', categoryId: 'extras', name: 'Joyería', price: 500, desde: false, duration: 5, active: true, countable: true, unit: 'c/u', desc: 'Dijes metálicos, corazones, perlas o charms.' },
       { id: 'e5', categoryId: 'extras', name: 'Set Completo de French', price: 5000, desde: false, duration: 20, active: true, countable: false, desc: 'Francesita clásica o de color en las 10 uñas.' },
 
-      // RETIROS ✨
       { id: 'r1', categoryId: 'retiros', name: 'Retiro Servicio Soft Gel', price: 3000, desde: false, duration: 25, active: true, countable: false, desc: 'Remoción cuidada de Soft Gel realizado en Brillo de Luna.' },
       { id: 'r2', categoryId: 'retiros', name: 'Retiro Servicio Kapping', price: 1500, desde: false, duration: 20, active: true, countable: false, desc: 'Remoción suave de Kapping sin dañar la lámina.' },
       { id: 'r3', categoryId: 'retiros', name: 'Retiro de otra colega', price: 5000, desde: false, duration: 35, active: true, countable: false, desc: 'Remoción de producto realizado en otro estudio.' }
     ],
     bookingRules: {
       depositRequired: true,
-      depositType: 'fixed', // 'fixed' | 'percent'
+      depositType: 'fixed',
       depositValue: 5000,
       alias: 'brillodeluna.nails.mp',
       holder: 'Agustina M. López',
@@ -255,12 +230,12 @@ window.INITIAL_TENANTS = {
       toleranceMinutes: 10,
       allowReschedule: false,
       askReferencePhoto: true,
-      importantNotice: 'LOS TURNOS DE DICIEMBRE NO PODRÁN SER MOVIDOS. ¡Estén seguras al momento de reservar!',
+      importantNotice: 'LOS TURNOS DE DICIEMBRE NO PODRÁN SER MOVIDOS. Estén seguras al momento de reservar.',
       policySections: [
         {
           title: '1. Reserva del turno',
           bullets: [
-            'Para reservar turno sí o sí se deberá señar. Sin seña no se reserva. ¡SIN EXCEPCIÓN!',
+            'Para reservar turno sí o sí se deberá señar. Sin seña no se reserva, sin excepción.',
             'La seña se descuenta del total del servicio.',
             'Avisar con anticipación servicio a elegir y si hay producto que remover.'
           ]
@@ -268,13 +243,13 @@ window.INITIAL_TENANTS = {
         {
           title: '2. Cancelaciones',
           bullets: [
-            'La seña no es reembolsable, por lo tanto en caso de cancelación, tampoco es reconocida para un nuevo turno.'
+            'La seña no es reembolsable, por lo tanto en caso de cancelación tampoco es reconocida para un nuevo turno.'
           ]
         },
         {
           title: '3. Puntualidad',
           bullets: [
-            'Hay una tolerancia de 10\' min. Pasados, el turno queda cancelado.',
+            'Hay una tolerancia de 10 minutos. Pasados, el turno queda cancelado.',
             'No llegar con demasiada anticipación (respetemos el turno de todas).'
           ]
         },
@@ -301,10 +276,10 @@ window.INITIAL_TENANTS = {
       ]
     },
     clients: [
-      { id: 'c1', name: 'Camila Fernández', phone: '11 4589-2210', ig: '@cami.fer', visits: 7, spent: 162000, note: 'Prefiere almendra corta · Ama tonos rosados', tag: 'VIP 💖' },
+      { id: 'c1', name: 'Camila Fernández', phone: '11 4589-2210', ig: '@cami.fer', visits: 7, spent: 162000, note: 'Prefiere almendra corta · Tonos rosados', tag: 'VIP' },
       { id: 'c2', name: 'Sofía Martínez', phone: '11 6721-9034', ig: '@sofimartinez', visits: 4, spent: 98500, note: 'Usa Soft Gel, suele pedir strass', tag: 'Frecuente' },
-      { id: 'c3', name: 'Valentina Ruiz', phone: '11 3340-8812', ig: '@valenruiz_', visits: 2, spent: 49000, note: 'Viene de otra colega para retiro + kapping', tag: 'Nueva ✨' },
-      { id: 'c4', name: 'Micaela Gómez', phone: '11 5190-7745', ig: '@mica.g', visits: 5, spent: 118000, note: 'Siempre súper puntual', tag: 'Frecuente' }
+      { id: 'c3', name: 'Valentina Ruiz', phone: '11 3340-8812', ig: '@valenruiz_', visits: 2, spent: 49000, note: 'Viene de otra colega para retiro + kapping', tag: 'Nueva' },
+      { id: 'c4', name: 'Micaela Gómez', phone: '11 5190-7745', ig: '@mica.g', visits: 5, spent: 118000, note: 'Siempre puntual', tag: 'Frecuente' }
     ],
     appointments: [
       {
@@ -322,11 +297,11 @@ window.INITIAL_TENANTS = {
         ],
         total: 28600,
         depositAmount: 5000,
-        status: 'confirmed', // 'pending_deposit' | 'confirmed' | 'completed' | 'cancelled' | 'blocked'
+        status: 'confirmed',
         paymentMethod: 'Transferencia',
         receiptNote: 'Comprobante #MP-88219 verificado',
-        designRef: 'French Rosa Glitter',
-        notes: 'Quiero largo medio almendrado 💕',
+        designRef: 'French Rosa Glitter + Strass',
+        notes: 'Largo medio almendrado.',
         isMine: true
       },
       {
@@ -347,7 +322,7 @@ window.INITIAL_TENANTS = {
         status: 'pending_deposit',
         paymentMethod: 'Transferencia',
         receiptNote: 'Comprobante adjunto (Transferencia $5.000 · hoy 11:42)',
-        designRef: 'Aurora Pearl + Strass',
+        designRef: 'Milky Nude Aurora Pearl',
         notes: 'Traigo semipermanente de hace 3 semanas.',
         isMine: false
       },
@@ -368,7 +343,7 @@ window.INITIAL_TENANTS = {
         status: 'confirmed',
         paymentMethod: 'Mercado Pago',
         receiptNote: 'Aprobado automático MP',
-        designRef: 'Milky Nude 3D',
+        designRef: 'Glazed Cherry & Barbie Swirl',
         notes: '',
         isMine: false
       },
@@ -389,7 +364,7 @@ window.INITIAL_TENANTS = {
         status: 'pending_deposit',
         paymentMethod: 'Transferencia',
         receiptNote: 'Comprobante adjunto (Transferencia $5.000 · hoy 13:15)',
-        designRef: 'Cherry Red Glam',
+        designRef: 'Coquette Moños 3D + Perlas',
         notes: 'Sin retiro.',
         isMine: false
       }
@@ -409,9 +384,9 @@ window.INITIAL_TENANTS = {
     address: 'Belgrano · CABA · Consultorio 4B',
     rating: '5.0',
     reviewsCount: 92,
-    announcement: '🌿 Pack Verano: 15% OFF reservando 2 o más zonas',
+    announcement: 'Pack Verano: 15% OFF reservando 2 o más zonas',
     theme: {
-      presetId: 'aura-terracota',
+      templateId: 'editorial-spa',
       primary: '#B85D43',
       primaryDark: '#92442E',
       primarySoft: '#F5E5DE',
@@ -424,15 +399,13 @@ window.INITIAL_TENANTS = {
       fontId: 'editorial',
       radiusId: 'soft',
       headerStyle: 'circular',
-      showMascot: false,
-      showStickers: false
+      showMascot: false
     },
     assets: {
       logoCircular: '',
       logoBanner: '',
       mascot: '',
-      monogram: 'A',
-      stickers: []
+      monogram: 'AE'
     },
     portfolio: [
       {
@@ -444,7 +417,6 @@ window.INITIAL_TENANTS = {
         priceHint: '$19.500',
         src: '',
         gradient: 'linear-gradient(135deg, #f3dfd6, #d9a796)',
-        emoji: '🌿',
         featured: true
       },
       {
@@ -456,13 +428,12 @@ window.INITIAL_TENANTS = {
         priceHint: '$17.000',
         src: '',
         gradient: 'linear-gradient(135deg, #e7ece4, #b7c6b2)',
-        emoji: '✨',
         featured: true
       }
     ],
     categories: [
-      { id: 'depilacion', name: 'Depilación Láser', icon: '🌿', mode: 'single', required: true, hint: 'Tecnología Soprano Ice indolora' },
-      { id: 'mirada', name: 'Cejas & Pestañas', icon: '✨', mode: 'multi', required: false, hint: 'Complementá tu sesión' }
+      { id: 'depilacion', name: 'Depilación Láser', icon: 'leaf', mode: 'single', required: true, hint: 'Tecnología Soprano Ice indolora' },
+      { id: 'mirada', name: 'Cejas & Pestañas', icon: 'eye', mode: 'multi', required: false, hint: 'Complementá tu sesión' }
     ],
     services: [
       { id: 'a1', categoryId: 'depilacion', name: 'Pierna Entera + Cavado + Axilas', price: 29000, desde: false, duration: 45, active: true, countable: false, desc: 'Combo completo con gel neutro y cabezal frío.' },
@@ -558,30 +529,28 @@ window.INITIAL_TENANTS = {
     address: 'Recoleta · CABA',
     rating: '4.9',
     reviewsCount: 210,
-    announcement: '🖤 Horario extendido hasta las 21 hs · Jueves a Sábado',
+    announcement: 'Horario extendido hasta las 21 hs · Jueves a Sábado',
     theme: {
-      presetId: 'noir-gold',
+      templateId: 'noir-luxe',
       primary: '#D4AF37',
       primaryDark: '#B38E1D',
       primarySoft: '#2E281B',
       bg: '#121015',
       surface: '#1D1922',
-      accent: '#F075B6',
+      accent: '#E987B5',
       text: '#FAF5EE',
       muted: '#ACA2B5',
       isDark: true,
       fontId: 'minimal',
       radiusId: 'sharp',
       headerStyle: 'circular',
-      showMascot: false,
-      showStickers: false
+      showMascot: false
     },
     assets: {
       logoCircular: '',
       logoBanner: '',
       mascot: '',
-      monogram: 'VN',
-      stickers: []
+      monogram: 'VN'
     },
     portfolio: [
       {
@@ -593,7 +562,6 @@ window.INITIAL_TENANTS = {
         priceHint: '$34.000',
         src: '',
         gradient: 'linear-gradient(135deg, #332a1d, #8c6f27)',
-        emoji: '🖤',
         featured: true
       },
       {
@@ -605,13 +573,12 @@ window.INITIAL_TENANTS = {
         priceHint: '$29.000',
         src: '',
         gradient: 'linear-gradient(135deg, #2b1d2e, #6b3859)',
-        emoji: '✨',
         featured: true
       }
     ],
     categories: [
-      { id: 'lashes', name: 'Extensiones de Pestañas', icon: '🖤', mode: 'single', required: true, hint: 'Volumen personalizado' },
-      { id: 'extras', name: 'Add-ons', icon: '✨', mode: 'multi', required: false, hint: 'Sumá retoques' }
+      { id: 'lashes', name: 'Pestañas', icon: 'eye', mode: 'single', required: true, hint: 'Volumen personalizado' },
+      { id: 'extras', name: 'Add-ons', icon: 'sparkles', mode: 'multi', required: false, hint: 'Sumá retoques' }
     ],
     services: [
       { id: 'v1', categoryId: 'lashes', name: 'Efecto Rimel / Clásicas', price: 24000, desde: false, duration: 90, active: true, countable: false, desc: 'Sutiles, prolijas y livianas.' },
@@ -656,7 +623,7 @@ window.INITIAL_TENANTS = {
       ]
     },
     clients: [
-      { id: 'vc1', name: 'Martina Belén', phone: '11 9821-4430', ig: '@martubelen', visits: 8, spent: 256000, note: 'Curvatura D · Fox eye', tag: 'VIP 🖤' }
+      { id: 'vc1', name: 'Martina Belén', phone: '11 9821-4430', ig: '@martubelen', visits: 8, spent: 256000, note: 'Curvatura D · Fox eye', tag: 'VIP' }
     ],
     appointments: [
       {

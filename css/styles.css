@@ -33,6 +33,233 @@ button {
   cursor: pointer;
 }
 
+.svg-ic {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.ic-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Neutral High-Clarity SaaS Theme for Admin Panel (independent from tenant brand) */
+.phone-screen.admin-saas {
+  --brand-primary: #4f46e5;
+  --brand-primary-dark: #3730a3;
+  --brand-primary-soft: #eef2ff;
+  --brand-primary-glow: rgba(79, 70, 229, 0.22);
+  --brand-on-primary: #ffffff;
+  --brand-bg: #f4f6fa;
+  --brand-surface: #ffffff;
+  --brand-accent: #0ea5e9;
+  --brand-text: #0f172a;
+  --brand-muted: #64748b;
+  --brand-border: #e2e8f0;
+  --brand-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --brand-selected-bg: #eef2ff;
+  --radius-card: 14px;
+  --radius-btn: 10px;
+  --radius-chip: 999px;
+  --radius-input: 10px;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Upgraded Admin Agenda Timeline & Operational Clarity */
+.admin-pending-banner {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.admin-pending-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 800;
+  color: #92400e;
+  margin-bottom: 8px;
+}
+
+.admin-pending-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px dashed #fde68a;
+}
+
+.appt-timeline-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 11px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 11px;
+  align-items: stretch;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.appt-timeline-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.appt-time-col {
+  width: 56px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 6px 4px;
+  border-left: 3px solid #94a3b8;
+}
+
+.appt-timeline-card.status-confirmed .appt-time-col {
+  border-left-color: #16a34a;
+  background: #f0fdf4;
+}
+
+.appt-timeline-card.status-pending .appt-time-col {
+  border-left-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.appt-timeline-card.status-completed .appt-time-col {
+  border-left-color: #4f46e5;
+  background: #eef2ff;
+}
+
+.appt-time-main {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.appt-time-dur {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.appt-info-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.appt-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.appt-money-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 11.5px;
+}
+
+/* Client Link Style Template Cards inside Admin */
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 9px;
+  margin-bottom: 12px;
+}
+
+.template-card {
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.template-card.active {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px #eef2ff;
+}
+
+.template-preview {
+  height: 44px;
+  border-radius: 8px;
+  padding: 7px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.template-preview-bar {
+  height: 8px;
+  width: 58%;
+  border-radius: 99px;
+}
+
+.template-preview-line {
+  height: 5px;
+  width: 82%;
+  border-radius: 99px;
+  opacity: 0.35;
+}
+
+.template-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.template-desc {
+  font-size: 10.5px;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.tenant-chip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+  background: #f1f5f9;
+  padding: 3px 9px;
+  border-radius: 99px;
+}
+
+.tenant-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
 /* ---------- Studio Top Bar (Desktop & Compact Mobile) ---------- */
 .studio-bar {
   position: sticky;
@@ -96,6 +323,9 @@ button {
   font-weight: 600;
   padding: 6px 12px;
   border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
@@ -314,7 +544,11 @@ button {
 }
 
 .nav-item .nav-icon {
-  font-size: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
   line-height: 1;
 }
 
